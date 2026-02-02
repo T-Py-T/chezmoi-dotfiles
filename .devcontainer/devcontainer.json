@@ -1,0 +1,15 @@
+// .devcontainer/devcontainer.json
+// Defines a dev container for local chezmoi testing.
+// Does not run chezmoi apply automatically.
+{
+  "name": "chezmoi-local-test",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "workspaceFolder": "/workspaces/chezmoi-dotfiles",
+  "remoteUser": "vscode",
+  "postStartCommand": "bash .devcontainer/startup.sh",
+  "containerEnv": {
+    "CHEZMOI_SOURCE_DIR": "/workspaces/chezmoi-dotfiles"
+  }
+}

@@ -1,0 +1,9 @@
+# mise.toml
+# Defines mise tools and task includes for this repo.
+# Does not install tools automatically on its own.
+
+[tools]
+chezmoi = "latest"
+
+[tasks]
+file = ".mise/tasks.toml"
