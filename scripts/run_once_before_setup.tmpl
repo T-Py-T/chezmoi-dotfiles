@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -eou pipefail
+
+{{- if not (lookPath "brew") }}
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+{{- end }}
+
+[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+if ! brew doctor; then
+  >&2 echo "Please fix the issues with Homebrew and run again."
+  exit 1
+fi
