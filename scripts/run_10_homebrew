@@ -1,5 +1,27 @@
 #!/usr/bin/env bash
+# scripts/run_10_homebrew
+# Runs brew bundle using the OS-specific Brewfile.
+# Does not install Homebrew itself.
+
+set -euo pipefail
 
 brew update
-brew bundle --global --cleanup
+
+source_dir="${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}"
+brewfile_path=""
+case "$(uname -s)" in
+  Linux)
+    brewfile_path="${source_dir}/linux/dot_Brewfile.tmpl"
+    ;;
+  Darwin)
+    brewfile_path="${source_dir}/macos/dot_Brewfile.tmpl"
+    ;;
+esac
+
+if [ -n "$brewfile_path" ] && [ -f "$brewfile_path" ]; then
+  brew bundle --file "$brewfile_path" --cleanup
+else
+  brew bundle --global --cleanup
+fi
+
 brew upgrade
