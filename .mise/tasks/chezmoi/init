@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# .mise/tasks/chezmoi/init
+# Initializes chezmoi from the local source directory.
+# Does not apply dotfiles.
+
+set -eu
+
+if [ -z "${CHEZMOI_SOURCE_DIR:-}" ]; then
+  echo "CHEZMOI_SOURCE_DIR is not set."
+  exit 1
+fi
+
+chezmoi init --source "$CHEZMOI_SOURCE_DIR"

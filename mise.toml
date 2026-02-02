@@ -4,6 +4,3 @@
 
 [tools]
 chezmoi = "latest"
-
-[tasks]
-file = ".mise/tasks.toml"

@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 # .devcontainer/startup.sh
 # Bootstraps mise tools and runs local chezmoi tasks.
 # Does not apply dotfiles unless the tasks are invoked.
@@ -20,6 +19,9 @@ if [ -z "${CHEZMOI_SOURCE_DIR:-}" ]; then
   exit 1
 fi
 
+export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+mise trust --yes
 mise install
 mise run chezmoi:init
 mise run chezmoi:apply

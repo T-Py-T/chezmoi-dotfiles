@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# .mise/tasks/chezmoi/apply
+# Applies dotfiles from the local source directory.
+# Does not prompt for confirmation.
+
+set -eu
+
+if [ -z "${CHEZMOI_SOURCE_DIR:-}" ]; then
+  echo "CHEZMOI_SOURCE_DIR is not set."
+  exit 1
+fi
+
+chezmoi apply --source "$CHEZMOI_SOURCE_DIR"
