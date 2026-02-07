@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # scripts/run_10_homebrew
 # Runs brew bundle using the OS-specific Brewfile.
-# Does not install Homebrew itself.
+# Skipped in devpod environments to keep startup fast (tools via mise).
 
 set -euo pipefail
 
-if [ "${SKIP_BREW:-0}" = "1" ]; then
-  echo "Skipping Homebrew bundle because SKIP_BREW=1."
+# Skip brew bundle in containerized environments
+if [ -f /.dockerenv ] || [ -f /.devcontainer ]; then
+  echo "Skipping brew bundle in containerized environment (tools via mise)."
   exit 0
 fi
 
