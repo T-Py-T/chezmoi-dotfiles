@@ -1,0 +1,17 @@
+# dot_zshrc
+# Main zsh initialization file that sources modular configs.
+# Does not include all configuration inline.
+
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+fi
+
+# Source all modular zsh configs
+for config in ~/.config/zsh/*.zsh(N); do
+  source "$config"
+done
+
+# Load shared aliases if they exist
+if [ -f ~/.config/shell_aliases ]; then
+  source ~/.config/shell_aliases
+fi

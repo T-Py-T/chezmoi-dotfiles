@@ -1,17 +1,6 @@
 # dot_config/zsh/dot_zshrc
-# Initializes zsh environment with mise tools.
-# Loads shared aliases and user customizations.
+# Additional zsh configuration sourced by ~/.zshrc.
+# Add user-specific zsh settings here.
 
-if command -v mise >/dev/null 2>&1; then
-  eval "$(mise activate zsh)"
-fi
-
-# Source all modular zsh configs
-for config in ~/.config/zsh/*.zsh(N); do
-  source "$config"
-done
-
-# Load shared aliases if they exist
-if [ -f ~/.config/shell_aliases ]; then
-  source ~/.config/shell_aliases
-fi
+# Example: custom prompt, completion settings, etc.
+# This file is sourced automatically by the glob pattern in ~/.zshrc
