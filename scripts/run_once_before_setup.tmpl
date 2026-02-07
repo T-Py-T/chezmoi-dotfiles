@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
+# scripts/run_once_before_setup.tmpl
+# Installs Homebrew if missing and validates it.
+# Does not run Brewfile bundle steps.
+
 set -eou pipefail
+
+if [ "${SKIP_BREW:-0}" = "1" ]; then
+  echo "Skipping Homebrew setup because SKIP_BREW=1."
+  exit 0
+fi
 
 {{- if not (lookPath "brew") }}
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"

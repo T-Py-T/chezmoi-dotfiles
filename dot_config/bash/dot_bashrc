@@ -1,0 +1,12 @@
+# dot_config/bash/dot_bashrc
+# Initializes bash environment with mise tools.
+# Loads shared aliases and user customizations.
+
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate bash)"
+fi
+
+# Load shared aliases if they exist
+if [ -f ~/.config/shell_aliases ]; then
+  source ~/.config/shell_aliases
+fi

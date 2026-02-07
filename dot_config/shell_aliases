@@ -1,0 +1,64 @@
+# dot_config/shell_aliases
+# Shared aliases for bash and zsh.
+
+# ls aliases
+alias ls='ls --color=auto'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# grep aliases
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+# Kubernetes - kubectx/kubens aliases
+alias kx="kubectx"
+alias kn="kubens"
+
+# kubectl aliases
+alias k='kubectl'
+alias kga="kubectl get all"
+alias kgn="kubectl get all --all-namespaces"
+alias kgp="kubectl get pods"
+alias kgs="kubectl get services"
+alias kdel="kubectl delete"
+alias ksys='kubectl --namespace=kube-system'
+alias ka='kubectl apply --recursive -f'
+alias ksysa='kubectl --namespace=kube-system apply --recursive -f'
+alias kak='kubectl apply -k'
+alias kk='kubectl kustomize'
+alias kex='kubectl exec -i -t'
+alias ksysex='kubectl --namespace=kube-system exec -i -t'
+alias klo='kubectl logs -f'
+alias ksyslo='kubectl --namespace=kube-system logs -f'
+alias klop='kubectl logs -f -p'
+alias ksyslop='kubectl --namespace=kube-system logs -f -p'
+alias kg='kubectl get'
+alias kd='kubectl describe'
+alias kgpo='kubectl get pods'
+alias kdpo='kubectl describe pods'
+alias kgdep='kubectl get deployment'
+alias kddep='kubectl describe deployment'
+alias kgsts='kubectl get statefulset'
+alias ksysgsts='kubectl --namespace=kube-system get statefulset'
+alias kdsts='kubectl describe statefulset'
+alias ksysdsts='kubectl --namespace=kube-system describe statefulset'
+alias krmsts='kubectl delete statefulset'
+alias ksysrmsts='kubectl --namespace=kube-system delete statefulset'
+alias kgsvc='kubectl get service'
+alias ksysgsvc='kubectl --namespace=kube-system get service'
+alias kdsvc='kubectl describe service'
+alias ksysdsvc='kubectl --namespace=kube-system describe service'
+alias krmsvc='kubectl delete service'
+alias ksysrmsvc='kubectl --namespace=kube-system delete service'
+alias kging='kubectl get ingress'
+alias kding='kubectl describe ingress'
+alias kgcm='kubectl get configmap'
+alias kdcm='kubectl describe configmap'
+alias kgsec='kubectl get secret'
+alias kdsec='kubectl describe secret'
+alias kgno='kubectl get nodes'
+alias kdno='kubectl describe nodes'
+alias kgns='kubectl get namespaces'
+alias kdns='kubectl describe namespaces'

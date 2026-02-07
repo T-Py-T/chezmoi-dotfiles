@@ -4,3 +4,14 @@
 
 [tools]
 chezmoi = "latest"
+neovim = "latest"
+python = "latest"
+go = "latest"
+rust = "latest"
+kubectl = "latest"
+kubectx = "latest"
+k9s = "latest"
+gofumpt = "latest"
+golangci-lint = "latest"
+goreleaser = "latest"
+mockery = "latest"

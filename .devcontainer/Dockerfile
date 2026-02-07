@@ -9,6 +9,7 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     bash \
     build-essential \
+    gcc \
     ca-certificates \
     coreutils \
     curl \
@@ -17,6 +18,7 @@ RUN apt-get update \
     gnupg \
     procps \
     sudo \
+    zsh \
   && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsLS https://mise.run \
@@ -26,7 +28,7 @@ RUN curl -fsLS https://get.chezmoi.io \
   | sh -s -- -b /usr/local/bin
 
 RUN groupadd --gid 1000 taylor \
-  && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash taylor \
+  && useradd --uid 1000 --gid 1000 --create-home --shell /bin/zsh taylor \
   && echo "taylor ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/taylor \
   && chmod 0440 /etc/sudoers.d/taylor
 
