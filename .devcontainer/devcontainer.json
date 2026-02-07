@@ -12,8 +12,6 @@
   "shell": ["/bin/zsh", "-l", "-i"],
   "postStartCommand": "bash .devcontainer/startup.sh",
   "containerEnv": {
-    "CHEZMOI_SOURCE_DIR": "/workspaces/chezmoi-dotfiles",
-    // Skip Homebrew in devcontainer to speed startup; mise handles tools here.
-    "SKIP_BREW": "1"
+    "CHEZMOI_SOURCE_DIR": "/workspaces/chezmoi-dotfiles"
   }
 }

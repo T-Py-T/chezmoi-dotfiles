@@ -1,1 +1,2 @@
-source $(brew --prefix asdf)/libexec/asdf.sh
+# asdf.zsh
+# asdf initialization - not needed in devpod (using mise instead)

@@ -1,6 +1,11 @@
 # dot_config/bash/dot_bashrc
-# Initializes bash environment with mise tools.
+# Initializes bash environment with Homebrew and mise tools.
 # Loads shared aliases and user customizations.
+
+# Source Homebrew if available
+if [ -f ~/.config/bash/00-homebrew.bash ]; then
+  source ~/.config/bash/00-homebrew.bash
+fi
 
 if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate bash)"
