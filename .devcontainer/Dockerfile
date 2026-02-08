@@ -1,8 +1,8 @@
 # .devcontainer/Dockerfile
 # Builds a lightweight devcontainer with chezmoi and mise installed.
-# Uses ubuntu:jammy-slim (~60MB) for smaller size while maintaining compatibility.
+# Uses ubuntu:jammy (~60MB slim variant) for smaller size while maintaining compatibility.
 # Does not apply or modify dotfiles automatically.
-FROM ubuntu:jammy-slim
+FROM ubuntu:jammy
 
 ENV DEBIAN_FRONTEND=noninteractive
 
