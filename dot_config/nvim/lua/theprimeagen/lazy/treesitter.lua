@@ -1,24 +1,19 @@
--- dot_config/nvim/lua/local/plugins/treesitter.lua
--- ThePrimeagen's Treesitter setup for syntax highlighting
--- Source: https://github.com/ThePrimeagen/neovimrc
-
 return {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
-    event = { "BufReadPre", "BufNewFile" },
     config = function()
         require("nvim-treesitter.configs").setup({
             -- A list of parser names, or "all"
             ensure_installed = {
                 "vimdoc", "javascript", "typescript", "c", "lua", "rust",
-                "jsdoc", "bash", "python", "go", "json", "yaml",
+                "jsdoc", "bash",
             },
 
             -- Install parsers synchronously (only applied to `ensure_installed`)
             sync_install = false,
 
             -- Automatically install missing parsers when entering buffer
-            -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+            -- Recommendation: set to false if you don"t have `tree-sitter` CLI installed locally
             auto_install = true,
 
             indent = {

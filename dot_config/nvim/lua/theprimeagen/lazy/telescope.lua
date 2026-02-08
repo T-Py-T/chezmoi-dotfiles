@@ -1,13 +1,12 @@
--- dot_config/nvim/lua/local/plugins/telescope.lua
--- ThePrimeagen's Telescope setup
--- Source: https://github.com/ThePrimeagen/neovimrc
-
 return {
     "nvim-telescope/telescope.nvim",
+
     tag = "0.1.5",
+
     dependencies = {
         "nvim-lua/plenary.nvim"
     },
+
     config = function()
         require('telescope').setup({})
 
@@ -28,3 +27,4 @@ return {
         vim.keymap.set('n', '<leader>vh', builtin.help_tags, {})
     end
 }
+
