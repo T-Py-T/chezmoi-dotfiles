@@ -1,5 +1,7 @@
-return {
-  "nvim-lua/plenary.nvim", -- lua functions that many plugins use
-  "christoomey/vim-tmux-navigator", -- tmux & split window navigation
-}
+-- dot_config/nvim/lua/local/plugins/init.lua
+-- Base plugins required by other plugins
 
+return {
+  "nvim-lua/plenary.nvim",
+  "christoomey/vim-tmux-navigator",
+}
