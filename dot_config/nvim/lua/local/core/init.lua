@@ -4,7 +4,7 @@
 
 require("local.core.options")
 require("local.core.remap")
--- Note: keymaps.lua is now remap.lua, keeping for backwards compatibility if needed
+-- See keymaps.lua for archived old keymaps (all merged into remap.lua)
 
 -- ==================== ThePrimeagen's Autocmds ====================
 
