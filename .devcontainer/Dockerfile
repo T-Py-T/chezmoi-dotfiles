@@ -12,7 +12,8 @@ RUN apk add --no-cache \
     git \
     coreutils \
     procps \
-    sudo
+    sudo \
+    build-base
 
 RUN curl -fsLS https://mise.run \
   | MISE_INSTALL_PATH=/usr/local/bin/mise sh
