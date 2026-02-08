@@ -1,19 +1,26 @@
 # .devcontainer/Dockerfile
-# Builds a lightweight devcontainer with mise and chezmoi.
-# Uses Alpine Linux for minimal size (~80MB vs 500MB+ with Ubuntu).
+# Builds a lightweight devcontainer with chezmoi and mise installed.
+# Uses ubuntu:22.04-slim for smaller size (~60MB vs 77MB+) while maintaining compatibility.
 # Does not apply or modify dotfiles automatically.
-FROM alpine:latest
+FROM ubuntu:22.04-slim
 
-RUN apk add --no-cache \
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
     bash \
-    zsh \
+    build-essential \
+    gcc \
     ca-certificates \
-    curl \
-    git \
     coreutils \
+    curl \
+    file \
+    git \
+    gnupg \
     procps \
     sudo \
-    build-base
+    zsh \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsLS https://mise.run \
   | MISE_INSTALL_PATH=/usr/local/bin/mise sh
@@ -21,8 +28,8 @@ RUN curl -fsLS https://mise.run \
 RUN curl -fsLS https://get.chezmoi.io \
   | sh -s -- -b /usr/local/bin
 
-RUN addgroup -g 1000 taylor \
-  && adduser -D -u 1000 -G taylor -s /bin/zsh taylor \
+RUN groupadd --gid 1000 taylor \
+  && useradd --uid 1000 --gid 1000 --create-home --shell /bin/zsh taylor \
   && echo "taylor ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/taylor \
   && chmod 0440 /etc/sudoers.d/taylor
 
