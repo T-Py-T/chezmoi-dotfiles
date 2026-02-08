@@ -31,3 +31,7 @@ keymap.set("n", "<leader>tn", "<cmd>tabn<CR>", { desc = "Go to next tab" }) --  
 keymap.set("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" }) --  go to previous tab
 keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer in new tab" }) --  move current buffer to new tab
 
+-- Harpoon keymaps are set in harpoon.lua plugin
+-- Telescope keymaps are set in telescope.lua plugin
+-- Trouble keymaps are set in trouble.lua plugin
+-- Oil keymaps are set in oil.lua plugin
