@@ -1,78 +1,64 @@
 # NeoVim Configuration Migration Task
 
 ## Objective
-Migrate to ThePrimeagen's neovimrc setup while preserving our custom enhancements and ensuring stability.
+Use ThePrimeagen's neovimrc setup as the primary configuration, adding only our custom plugins on top.
 
-## Current Status: IN PROGRESS
+## Current Status: Phase 2 - IN PROGRESS
 
 ## Strategy
-- Favor ThePrimeagen's setup by default
-- Preserve custom configs if not in ThePrimeagen's setup
-- Comment out keybindings that conflict
-- Keep all plugins that exist in our setup but not in his
+- Replace our complex setup with ThePrimeagen's proven, simpler setup
+- Keep ONLY our custom plugins: Harpoon, Oil, Trouble, Spectre, Copilot
+- Use his plugin structure and philosophy
+- Simplify to the essentials
 
-## Phase 1: Core Setup - DONE
-- [x] Add ripgrep to mise.toml (DONE)
-- [x] Create init.lua (just requires local module) (DONE)
-- [x] Create lua/local/core/set.lua with ThePrimeagen's settings (DONE as options.lua)
-- [x] Create lua/local/core/remap.lua with ThePrimeagen's keymaps (DONE - merged with ours)
-- [x] Update lua/local/init.lua with autocmds from ThePrimeagen (DONE)
-- [ ] Create lua/local/lazy_init.lua for lazy.nvim setup (NEXT)
+## Phase 1: Core Setup - DONE ✓
+- [x] Add ripgrep to mise.toml
+- [x] Update options.lua with ThePrimeagen's settings
+- [x] Create remap.lua with ThePrimeagen's keybindings
+- [x] Update init.lua with ThePrimeagen's autocmds
 
-## Phase 2: Plugin Migration
-- [ ] Fetch ThePrimeagen's lazy plugin specs
-- [ ] Migrate telescope.lua
-- [ ] Migrate lsp configs (lspconfig.lua, mason.lua)
-- [ ] Migrate treesitter.lua
-- [ ] Migrate colorscheme.lua
-- [ ] Migrate other plugins from his setup
-- [ ] Keep our custom plugins (harpoon, oil, trouble, spectre, copilot)
+## Phase 2: Plugin Migration - IN PROGRESS
+- [ ] Create lua/local/lazy.lua (ThePrimeagen's lazy_init)
+- [ ] Replace telescope.lua with ThePrimeagen's version
+- [ ] Replace lspconfig.lua with ThePrimeagen's LSP setup
+- [ ] Replace mason.lua with ThePrimeagen's mason
+- [ ] Replace treesitter.lua with ThePrimeagen's version
+- [ ] Replace colorscheme.lua with ThePrimeagen's colors
+- [ ] Keep plugins init.lua (base plugins)
+- [ ] Delete redundant plugins we're not using
+- [ ] Keep our 5 custom plugins (harpoon, oil, trouble, spectre, copilot)
 
-## Phase 3: Keybinding Audit
-- [ ] Merge ThePrimeagen's keymaps with ours
-- [ ] Comment out conflicts
-- [ ] Ensure no duplicate mappings
-- [ ] Test all keybindings
+## Phase 3: Clean Up
+- [ ] Remove duplicate/unused plugin files
+- [ ] Delete old keymaps.lua (now remap.lua)
+- [ ] Verify all plugins load
+- [ ] Test core functionality
 
 ## Phase 4: Testing
 - [ ] Full rebuild of devpod
 - [ ] Test all plugins load
 - [ ] Verify LSP works
-- [ ] Test Telescope/Harpoon/Oil
-- [ ] Verify custom keybindings
+- [ ] Verify custom plugins work
+- [ ] Commit all changes
 
-## Preserved Customs (Won't Delete)
-- Harpoon plugin (not in ThePrimeagen's latest)
-- Oil file explorer (our addition)
-- Trouble diagnostics (our addition)
-- Spectre find/replace (our addition)
-- Copilot (our addition)
-- Custom shell aliases keymaps
+## Preserved Custom Plugins (Will Keep)
+1. Harpoon - Quick file navigation
+2. Oil - File explorer
+3. Trouble - Diagnostics viewer
+4. Spectre - Find and replace
+5. Copilot - AI suggestions
 
-## Dependencies to Install
-- ripgrep ✓ (ADDED to mise)
-- Everything else already available
+## ThePrimeagen's Key Plugins (Will Use)
+- Telescope - Fuzzy finder
+- Treesitter - Syntax highlighting
+- LSP Zero (maybe) or direct nvim-lspconfig
+- Mason - LSP installer
+- Colorscheme (nightfly or similar)
+- nvim-cmp - Completions
+- Various quality-of-life plugins
 
-## ThePrimeagen's Core Files to Integrate
-1. **set.lua** - Editor settings (vim.opt configs)
-2. **remap.lua** - Core keybindings
-3. **init.lua** - Autocmds and special setup
-4. **lazy_init.lua** - Lazy.nvim initialization
+## Dependencies Met
+- ripgrep ✓
+- All language servers via mise ✓
+- Build tools in Dockerfile ✓
 
-## Files Structure After Migration
-```
-lua/local/
-├── core/
-│   ├── init.lua (+ ThePrimeagen's autocmds)
-│   ├── keymaps.lua (merged with ThePrimeagen's)
-│   ├── options.lua (from ThePrimeagen's set.lua)
-│   └── remap.lua (ThePrimeagen's core remaps)
-├── lazy.lua (lazy_init from ThePrimeagen)
-└── plugins/ (existing + ThePrimeagen's)
-```
-
-## Notes
-- ThePrimeagen uses relative line numbers (we can keep)
-- His tab settings: 4 spaces
-- His colorcolumn: 80 chars
-- His special keymaps: mostly LSP and workflow optimizations
