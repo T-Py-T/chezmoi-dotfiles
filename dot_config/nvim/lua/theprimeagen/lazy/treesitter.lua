@@ -1,7 +1,7 @@
 return {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
-    event = { "BufReadPre", "BufNewFile" },
+    event = { "BufReadPre", "BufNewFile", "VeryLazy" },
     config = function()
         require("nvim-treesitter.configs").setup({
             -- A list of parser names, or "all"
@@ -33,16 +33,19 @@ return {
             },
         })
 
-        local treesitter_parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-        treesitter_parser_config.templ = {
-            install_info = {
-                url = "https://github.com/vrischmann/tree-sitter-templ.git",
-                files = {"src/parser.c", "src/scanner.c"},
-                branch = "master",
-            },
-        }
+        local ok, treesitter_parser_config = pcall(require, "nvim-treesitter.parsers")
+        if ok then
+            treesitter_parser_config = treesitter_parser_config.get_parser_configs()
+            treesitter_parser_config.templ = {
+                install_info = {
+                    url = "https://github.com/vrischmann/tree-sitter-templ.git",
+                    files = {"src/parser.c", "src/scanner.c"},
+                    branch = "master",
+                },
+            }
 
-        vim.treesitter.language.register("templ", "templ")
+            vim.treesitter.language.register("templ", "templ")
+        end
     end
 }
 

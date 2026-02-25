@@ -9,6 +9,11 @@ return {
             "marilari88/neotest-vitest",
             "nvim-neotest/neotest-plenary",
         },
+        cmd = { "Neotest" },
+        keys = {
+            { "<leader>tc", "<cmd>Neotest run<cr>", desc = "Run test" },
+            { "<leader>tf", "<cmd>Neotest run file<cr>", desc = "Run file" },
+        },
         config = function()
             local neotest = require("neotest")
             neotest.setup({
