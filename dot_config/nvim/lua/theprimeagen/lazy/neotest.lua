@@ -15,7 +15,9 @@ return {
             { "<leader>tf", "<cmd>Neotest run file<cr>", desc = "Run file" },
         },
         config = function()
-            local neotest = require("neotest")
+            local ok, neotest = pcall(require, "neotest")
+            if not ok then return end
+
             neotest.setup({
                 adapters = {
                     require("neotest-vitest"),

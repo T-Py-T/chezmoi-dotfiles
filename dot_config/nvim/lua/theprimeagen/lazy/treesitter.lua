@@ -3,7 +3,10 @@ return {
     build = ":TSUpdate",
     event = { "BufReadPre", "BufNewFile", "VeryLazy" },
     config = function()
-        require("nvim-treesitter.configs").setup({
+        local ok, ts_config = pcall(require, "nvim-treesitter.configs")
+        if not ok then return end
+
+        ts_config.setup({
             -- A list of parser names, or "all"
             ensure_installed = {
                 "vimdoc", "javascript", "typescript", "c", "lua", "rust",
@@ -33,9 +36,10 @@ return {
             },
         })
 
-        local ok, treesitter_parser_config = pcall(require, "nvim-treesitter.parsers")
-        if ok then
-            treesitter_parser_config = treesitter_parser_config.get_parser_configs()
+        local ok_parser, treesitter_parser_config = pcall(function()
+            return require("nvim-treesitter.parsers").get_parser_configs()
+        end)
+        if ok_parser then
             treesitter_parser_config.templ = {
                 install_info = {
                     url = "https://github.com/vrischmann/tree-sitter-templ.git",
