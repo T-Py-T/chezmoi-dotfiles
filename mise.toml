@@ -17,4 +17,5 @@ goreleaser = "2.13.3"
 mockery = "3.6.3"
 fzf = "0.67.0"
 ripgrep = "15.1.0"
+fd = "10.2.0"
 
