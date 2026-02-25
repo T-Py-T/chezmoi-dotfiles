@@ -1,6 +1,7 @@
 return {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
+    event = { "BufReadPre", "BufNewFile" },
     config = function()
         require("nvim-treesitter.configs").setup({
             -- A list of parser names, or "all"
@@ -13,7 +14,7 @@ return {
             sync_install = false,
 
             -- Automatically install missing parsers when entering buffer
-            -- Recommendation: set to false if you don"t have `tree-sitter` CLI installed locally
+            -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
             auto_install = true,
 
             indent = {
@@ -44,3 +45,4 @@ return {
         vim.treesitter.language.register("templ", "templ")
     end
 }
+
