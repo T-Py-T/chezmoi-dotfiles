@@ -17,10 +17,10 @@ source_dir="${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}"
 brewfile_path=""
 case "$(uname -s)" in
   Linux)
-    brewfile_path="${source_dir}/linux/dot_Brewfile.tmpl"
+    brewfile_path="${source_dir}/brew/linux/dot_Brewfile.tmpl"
     ;;
   Darwin)
-    brewfile_path="${source_dir}/macos/dot_Brewfile.tmpl"
+    brewfile_path="${source_dir}/brew/macos/dot_Brewfile.tmpl"
     ;;
 esac
 
