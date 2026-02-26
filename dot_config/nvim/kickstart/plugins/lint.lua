@@ -7,17 +7,17 @@ return {
       local lint = require 'lint'
       lint.linters_by_ft = {
         markdown = { 'markdownlint' },
-        python = { 'pylint' },
-        javascript = { 'eslint_d' },
-        typescript = { 'eslint_d' },
-        tsx = { 'eslint_d' },
-        jsx = { 'eslint_d' },
-        go = { 'golangci-lint' },
-        ruby = { 'rubocop' },
-        bash = { 'shellcheck' },
-        shell = { 'shellcheck' },
-        dockerfile = { 'hadolint' },
-        json = { 'jsonlint' },
+        -- Note: The following linters require installation
+        -- Uncomment and install as needed:
+        -- python = { 'pylint' },  -- pip install pylint
+        -- javascript = { 'eslint_d' },  -- npm install -g eslint_d
+        -- typescript = { 'eslint_d' },
+        -- tsx = { 'eslint_d' },
+        -- jsx = { 'eslint_d' },
+        -- go = { 'golangci-lint' },  -- via 'go install' (already in mise.toml)
+        -- ruby = { 'rubocop' },  -- gem install rubocop
+        -- bash = { 'shellcheck' },  -- system package manager
+        -- shell = { 'shellcheck' },
       }
 
       -- To allow other plugins to add linters to require('lint').linters_by_ft,

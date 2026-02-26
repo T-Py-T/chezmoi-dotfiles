@@ -691,24 +691,21 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        python = { 'black' },
-        javascript = { 'prettier' },
-        typescript = { 'prettier' },
-        tsx = { 'prettier' },
-        jsx = { 'prettier' },
-        json = { 'prettier' },
-        go = { 'goimports', 'golines' },
-        rust = { 'rustfmt' },
-        c = { 'clang-format' },
-        cpp = { 'clang-format' },
-        ruby = { 'rubocop' },
-        bash = { 'shfmt' },
-        shell = { 'shfmt' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        -- Note: The following formatters require installation via npm, pip, or system package manager
+        -- Uncomment and install as needed:
+        -- python = { 'black' },  -- pip install black
+        -- javascript = { 'prettier' },  -- npm install -g prettier
+        -- typescript = { 'prettier' },
+        -- tsx = { 'prettier' },
+        -- jsx = { 'prettier' },
+        -- json = { 'prettier' },
+        -- go = { 'goimports', 'golines' },  -- via 'go install'
+        -- rust = { 'rustfmt' },  -- rustup component add rustfmt
+        -- c = { 'clang-format' },
+        -- cpp = { 'clang-format' },
+        -- ruby = { 'rubocop' },  -- gem install rubocop
+        -- bash = { 'shfmt' },  -- via system package manager
+        -- shell = { 'shfmt' },
       },
     },
   },
