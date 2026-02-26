@@ -596,7 +596,6 @@ require('lazy').setup({
         clangd = {},
         gopls = {},
         pyright = {},
-        rust_analyzer = {},
         ts_ls = {},
         -- Ruby language server (ruby-lsp)
         ruby_lsp = {},
@@ -619,20 +618,20 @@ require('lazy').setup({
         'clangd', -- C/C++ language server
         'gopls', -- Go language server
         'pyright', -- Python language server
-        'rust-analyzer', -- Rust language server
-        '@typescript-eslint/typescript-estree', -- TypeScript language server
+        -- rust-analyzer handled by mise, not Mason
+        'typescript-language-server', -- TypeScript language server
         'ruby-lsp', -- Ruby language server
         'bash-language-server', -- Bash language server
         -- Formatters
         'black', -- Python formatter
         'prettier', -- JavaScript/TypeScript formatter
-        'gofmt', -- Go formatter (built-in)
-        'rustfmt', -- Rust formatter (built-in)
+        'shfmt', -- Shell formatter
         -- Linters
         'eslint_d', -- JavaScript/TypeScript linter
         'pylint', -- Python linter
         'rubocop', -- Ruby linter
         'shellcheck', -- Bash linter
+        'markdownlint', -- Markdown linter
       })
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
