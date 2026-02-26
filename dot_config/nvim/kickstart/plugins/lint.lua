@@ -7,6 +7,17 @@ return {
       local lint = require 'lint'
       lint.linters_by_ft = {
         markdown = { 'markdownlint' },
+        python = { 'pylint' },
+        javascript = { 'eslint_d' },
+        typescript = { 'eslint_d' },
+        tsx = { 'eslint_d' },
+        jsx = { 'eslint_d' },
+        go = { 'golangci-lint' },
+        ruby = { 'rubocop' },
+        bash = { 'shellcheck' },
+        shell = { 'shellcheck' },
+        dockerfile = { 'hadolint' },
+        json = { 'jsonlint' },
       }
 
       -- To allow other plugins to add linters to require('lint').linters_by_ft,
