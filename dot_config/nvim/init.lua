@@ -614,24 +614,14 @@ require('lazy').setup({
       vim.list_extend(ensure_installed, {
         'lua-language-server', -- Mason package name for lua_ls
         'stylua', -- Used to format Lua code
-        -- LSP servers for multiple languages
+        -- LSP servers for multiple languages (formatters/linters will come from mise)
         'clangd', -- C/C++ language server
         'gopls', -- Go language server
         'pyright', -- Python language server
-        -- rust-analyzer handled by mise, not Mason
         'typescript-language-server', -- TypeScript language server
         'ruby-lsp', -- Ruby language server
         'bash-language-server', -- Bash language server
-        -- Formatters
-        'black', -- Python formatter
-        'prettier', -- JavaScript/TypeScript formatter
-        'shfmt', -- Shell formatter
-        -- Linters
-        'eslint_d', -- JavaScript/TypeScript linter
-        'pylint', -- Python linter
-        'rubocop', -- Ruby linter
-        'shellcheck', -- Bash linter
-        'markdownlint', -- Markdown linter
+        -- Note: formatters and linters are installed via mise, not Mason
       })
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }

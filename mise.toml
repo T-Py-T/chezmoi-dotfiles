@@ -18,4 +18,11 @@ mockery = "3.6.3"
 fzf = "0.67.0"
 ripgrep = "15.1.0"
 fd = "10.2.0"
+# Formatters
+black = "24.1.1"
+prettier = "3.2.5"
+shfmt = "3.8.0"
+node = "22.12.0"
+# Linters
+shellcheck = "0.10.0"
 
