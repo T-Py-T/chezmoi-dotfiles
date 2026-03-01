@@ -33,6 +33,8 @@ RUN mkdir -p /tmp/nvim && cd /tmp/nvim \
   && curl -fLo nvim.tar.gz https://github.com/neovim/neovim/releases/download/v0.11.6/nvim-linux-arm64.tar.gz \
   && tar xzf nvim.tar.gz \
   && mv nvim-linux-arm64/bin/nvim /usr/local/bin/ \
+  && mv nvim-linux-arm64/lib/nvim /usr/local/lib/ \
+  && mv nvim-linux-arm64/share/nvim /usr/local/share/ \
   && rm -rf /tmp/nvim
 
 RUN groupadd --gid 1000 taylor \
