@@ -1,160 +1,110 @@
-# NeoVim Setup Instructions
+# NeoVim Configuration: NvChad + Kickstart
 
-## Quick Start
+## Overview
 
-After deploying the chezmoi configuration, your NeoVim setup includes IDE-quality plugins.
+This NeoVim setup combines the best of both worlds:
+- **NvChad**: Modern IDE framework with batteries-included (themes, UI, plugins)
+- **Kickstart**: Your familiar custom settings, keybindings, and workflow
 
-## First Launch
+## Structure
 
-When you open `nvim` for the first time:
-
-1. Lazy.nvim will auto-install all plugins
-2. Mason (LSP installer) can auto-install language servers
-3. Treesitter will compile syntax parsers on first load
-
-This may take 2-3 minutes on first startup.
-
-## Language Server Setup
-
-### Option 1: Auto-install with Mason
-
-```vim
-:Mason
+```
+dot_config/nvim/
+├── lua/
+│   ├── nvchad/           # NvChad base configuration (do not modify)
+│   │   ├── plugins/
+│   │   ├── configs/
+│   │   ├── mappings.lua
+│   │   └── options.lua
+│   └── custom/           # Your customizations go here
+│       ├── chadrc.lua    # NvChad + custom settings integration
+│       ├── init.lua      # Custom initialization (loads settings, mappings)
+│       ├── settings.lua  # vim.o/vim.opt from kickstart
+│       ├── mappings.lua  # Custom keybindings
+│       └── kickstart_init.lua  # Full kickstart config (reference)
+├── init.lua              # NvChad entry point (loads custom/chadrc.lua)
+└── ...
 ```
 
-Then search and install language servers:
-- `pyright` or `pylsp` for Python
-- `gopls` for Go
-- `rust-analyzer` for Rust
-- `typescript-language-server` for TypeScript/JavaScript
+## Custom Keybindings
 
-### Option 2: Manual Installation
+Your kickstart keybindings are preserved in `lua/custom/mappings.lua`:
 
-Language servers can be installed via `mise`:
+### Navigation
+- `<C-h/j/k/l>` - Move between splits
+
+### Telescope (Search)
+- `<leader>sf` - Find files
+- `<leader>sg` - Live grep
+- `<leader>sw` - Search word under cursor
+- `<leader>sh` - Search help
+- `<leader>sk` - Search keymaps
+
+### LSP
+- `grn` - Rename symbol
+- `gra` - Code action
+- `grD` - Goto declaration
+- `<leader>th` - Toggle inlay hints
+
+### General
+- `<Esc>` - Clear search highlighting
+- `<leader>q` - Open diagnostics
+
+## Adding Custom Plugins
+
+To add plugins while keeping NvChad:
+
+1. Create `lua/custom/plugins.lua`:
+```lua
+return {
+  {
+    "user/plugin-name",
+    opts = {},
+    config = function(_, opts)
+      -- setup code
+    end
+  }
+}
+```
+
+2. NvChad will automatically load plugins from `lua/custom/plugins.lua`
+
+## Customizing Settings
+
+Edit `lua/custom/settings.lua` to adjust:
+- vim.o options (number, mouse, clipboard, etc.)
+- Tab size, indentation
+- UI preferences
+
+## Using NvChad Features
+
+NvChad includes many useful commands:
+- `:Telescope` - Launch telescope search
+- `:NvimTreeToggle` - Toggle file explorer
+- `:Mason` - Package manager for LSP/formatters/linters
+- `:checkhealth` - Diagnose configuration
+
+## Switching Back to Kickstart
+
+If you want to use the full kickstart config:
 ```bash
-# Already available via mise:
-# Python - included with python
-# Go - included with go
-# Rust - included with rust
+cp dot_config/nvim.backup/init.lua dot_config/nvim/init.lua
 ```
 
-## GitHub Copilot Setup
+## Performance
 
-If you want to use Copilot:
-
-1. Install the Copilot plugin (already in config):
-   ```vim
-   :Copilot setup
-   ```
-
-2. Authenticate with GitHub when prompted
-
-3. Use with `<C-;>` to accept suggestions
-
-## Optional: Additional Setup
-
-### Fonts (Optional)
-Install a Nerd Font for better icons:
-- Download from: https://www.nerdfonts.com/
-- Recommended: FiraCode Nerd Font, JetBrains Mono Nerd Font
-
-### External Tools
-Some plugins work better with external tools:
-
-```bash
-# Already installed via mise:
-fzf          # Faster telescope searches
-ripgrep      # Better grep replacement (in telescope)
-
-# Optional external installations:
-lazygit      # Better git UI (already in mise)
-```
-
-## Quick Reference
-
-### Open NeoVim Dashboard
-```bash
-nvim
-```
-
-First screen shows recent files and bookmarks.
-
-### Quick Navigation
-- `<leader>ff` - Find files
-- `<leader>fs` - Search content
-- `<leader>ha` - Add file to harpoon
-- `<leader>hh` - See harpoon marks
-
-### LSP Commands
-- `<leader>fd` - Show diagnostics
-- `<leader>fw` - Workspace symbols
-- `gR` - Find references
-- `gd` - Go to definition
-
-### Version Numbers
-
-Current plugin versions (auto-managed):
-- Neovim: 0.11.6 (via mise)
-- Lazy.nvim: Latest
-- Harpoon: Branch harpoon2
-- Telescope: 0.1.x
-- All others: Latest
-
-## Updating Plugins
-
-Plugins auto-update on startup. To manually update:
-
-```vim
-:Lazy update
-```
+This setup is optimized for:
+- Fast startup (uses lazy loading)
+- Minimal memory footprint
+- Responsive UI with catppuccin theme
 
 ## Troubleshooting
 
-### Plugins not loading?
-```vim
-:Lazy sync
-```
+### NvChad not loading custom config
+Make sure `lua/custom/init.lua` and `lua/custom/chadrc.lua` exist
 
-### LSP not working?
-```vim
-:LspInfo
-:Mason
-```
+### Keybindings not working
+Check that `lua/custom/mappings.lua` exists and is being loaded by `init.lua`
 
-### Slow startup?
-Check with:
-```vim
-:Lazy profile
-```
-
-### Missing icons?
-Install a Nerd Font or set:
-```vim
-:set termguicolors
-```
-
-## File Locations
-
-Configuration files are managed by chezmoi:
-- Location: `~/.config/nvim/`
-- Source: `dot_config/nvim/` in chezmoi repository
-- Apply changes: `chezmoi apply`
-- Edit locally: `chezmoi edit ~/.config/nvim/init.lua`
-
-## Support
-
-For plugin documentation:
-- Harpoon: https://github.com/ThePrimeagen/harpoon
-- Telescope: https://github.com/nvim-telescope/telescope.nvim
-- Oil: https://github.com/stevearc/oil.nvim
-- Trouble: https://github.com/folke/trouble.nvim
-- Spectre: https://github.com/nvim-pack/nvim-spectre
-- Copilot: https://github.com/github/copilot.vim
-
-## ThePrimeagen's Setup
-
-This configuration is inspired by ThePrimeagen's neovimrc:
-- Repository: https://github.com/ThePrimeagen/neovimrc
-- Modular architecture for maintainability
-- Focus on productivity tools (Harpoon, Telescope)
-- Clean LSP setup
+### Plugins not installing
+Run `:Mason` to check if all dependencies are installed
