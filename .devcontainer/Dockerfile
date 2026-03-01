@@ -1,5 +1,5 @@
 # .devcontainer/Dockerfile
-# Builds a lightweight devcontainer with chezmoi and mise installed.
+# Builds a lightweight devcontainer with chezmoi, mise, and NeoVim/NvChad.
 # Uses ubuntu:jammy (~60MB slim variant) for smaller size while maintaining compatibility.
 # Does not apply or modify dotfiles automatically.
 FROM ubuntu:jammy
@@ -10,15 +10,21 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     bash \
     build-essential \
-    gcc \
     ca-certificates \
+    cmake \
     coreutils \
     curl \
     file \
+    gcc \
     git \
     gnupg \
+    libtool \
+    libtool-bin \
+    ninja-build \
+    pkg-config \
     procps \
     sudo \
+    wget \
     zsh \
   && rm -rf /var/lib/apt/lists/*
 
