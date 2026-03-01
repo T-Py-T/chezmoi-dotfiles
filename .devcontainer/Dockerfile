@@ -28,6 +28,13 @@ RUN curl -fsLS https://mise.run \
 RUN curl -fsLS https://get.chezmoi.io \
   | sh -s -- -b /usr/local/bin
 
+# Install NeoVim directly from release (avoids GitHub rate limiting via vfox)
+RUN mkdir -p /tmp/nvim && cd /tmp/nvim \
+  && curl -fLo nvim.tar.gz https://github.com/neovim/neovim/releases/download/v0.11.6/nvim-linux-arm64.tar.gz \
+  && tar xzf nvim.tar.gz \
+  && mv nvim-linux-arm64/bin/nvim /usr/local/bin/ \
+  && rm -rf /tmp/nvim
+
 RUN groupadd --gid 1000 taylor \
   && useradd --uid 1000 --gid 1000 --create-home --shell /bin/zsh taylor \
   && echo "taylor ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/taylor \
