@@ -1,13 +1,19 @@
 -- dot_config/nvim/lua/custom/init.lua
--- Custom initialization for NvChad with kickstart keybindings
+-- Custom initialization - integrates kickstart config with NvChad
+-- This file loads after NvChad base initialization
 
--- Load our custom mappings
+-- Load custom settings (vim options)
+require "custom.settings"
+
+-- Load custom mappings
 local mappings = require "custom.mappings"
 
 -- Apply general mappings
-for mode, maps in pairs(mappings.general) do
-  for keybind, action in pairs(maps) do
-    vim.keymap.set(mode, keybind, action[1], { desc = action[2], noremap = true })
+if mappings.general then
+  for mode, maps in pairs(mappings.general) do
+    for keybind, action in pairs(maps) do
+      vim.keymap.set(mode, keybind, action[1], { desc = action[2], noremap = true })
+    end
   end
 end
 
@@ -20,16 +26,27 @@ if mappings.telescope then
   end
 end
 
--- Apply LSP mappings
+-- Apply LSP mappings (loaded dynamically when LSP attaches)
 if mappings.lsp then
-  for mode, maps in pairs(mappings.lsp) do
-    for keybind, action in pairs(maps) do
-      local opts = { desc = action[2], noremap = true }
-      if type(action[1]) == "function" then
-        vim.keymap.set(mode, keybind, action[1], opts)
-      else
-        vim.keymap.set(mode, keybind, action[1], opts)
+  local augroup = vim.api.nvim_create_augroup("custom_lsp_mappings", { clear = true })
+  vim.api.nvim_create_autocmd("LspAttach", {
+    group = augroup,
+    callback = function()
+      for keybind, action in pairs(mappings.lsp.n or {}) do
+        local opts = { desc = action[2], noremap = true }
+        if type(action[1]) == "function" then
+          vim.keymap.set("n", keybind, action[1], opts)
+        else
+          vim.keymap.set("n", keybind, action[1], opts)
+        end
       end
-    end
+    end,
+  })
+end
+
+-- Setup terminal mode mapping
+if mappings.general and mappings.general.t then
+  for keybind, action in pairs(mappings.general.t) do
+    vim.keymap.set("t", keybind, action[1], { desc = action[2], noremap = true })
   end
 end
