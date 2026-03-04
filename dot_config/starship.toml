@@ -22,9 +22,6 @@ style_root = "bold red"
 ssh_only = false
 format = "[$hostname]($style)"
 style = "bold blue"
-detect_extensions = []
-detect_files = []
-detect_folders = []
 
 [directory]
 truncate_to_repo = true

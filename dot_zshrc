@@ -3,6 +3,7 @@
 # Does not include all configuration inline.
 
 if command -v mise >/dev/null 2>&1; then
+  mise trust --yes 2>/dev/null || true
   eval "$(mise activate zsh)"
 fi
 
