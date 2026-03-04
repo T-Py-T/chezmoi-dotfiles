@@ -100,7 +100,7 @@ detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
 detect_folders = []
 
 [aws]
-format = "via [$symbol($profile)(\($region\))(\[$duration\])]($style) "
+format = "via [$symbol($profile)(\\($region\\))(\\[$duration\\])]($style) "
 symbol = "☁️  "
 style = "bold orange"
 
