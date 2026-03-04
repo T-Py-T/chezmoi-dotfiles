@@ -1,3 +1,4 @@
-if command -v oh-my-posh &> /dev/null && [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
-  eval "$(oh-my-posh init zsh --config  $HOME/.config/ohmyposh/tokyns.toml 2> /dev/null)" || true
+# Initialize starship prompt
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
 fi

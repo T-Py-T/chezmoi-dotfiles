@@ -25,3 +25,7 @@ mise trust --yes
 mise install
 mise run chezmoi:init
 mise run chezmoi:apply
+
+# Bootstrap NeoVim plugins (lazy.nvim)
+eval "$(mise activate bash)"
+timeout 120 nvim +LazySync +quit! 2>/dev/null || true

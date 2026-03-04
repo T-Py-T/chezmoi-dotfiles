@@ -15,7 +15,11 @@ fi
 {{- end }}
 
 [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
-if ! brew doctor; then
-  >&2 echo "Please fix the issues with Homebrew and run again."
-  exit 1
+
+# Skip brew doctor in containers as it may warn about system configurations
+if [ ! -f /.dockerenv ] && [ ! -f /.devcontainer ]; then
+  if ! brew doctor; then
+    >&2 echo "Please fix the issues with Homebrew and run again."
+    exit 1
+  fi
 fi
