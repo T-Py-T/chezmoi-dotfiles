@@ -20,6 +20,7 @@ RUN apt-get update \
     gnupg \
     libtool \
     libtool-bin \
+    luarocks \
     ninja-build \
     pkg-config \
     procps \
