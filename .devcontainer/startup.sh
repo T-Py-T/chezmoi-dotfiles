@@ -23,10 +23,6 @@ export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr
 
 mise trust --yes
 mise install
-
-# Install tree-sitter-cli for NeoVim treesitter support
-npm install -g tree-sitter-cli 2>/dev/null || true
-
 mise run chezmoi:init
 mise run chezmoi:apply
 

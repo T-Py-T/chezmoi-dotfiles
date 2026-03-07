@@ -2,6 +2,11 @@
 # Main zsh initialization file that sources modular configs.
 # Does not include all configuration inline.
 
+# Install tree-sitter-cli if not already installed (for NeoVim treesitter)
+if ! command -v tree-sitter >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
+  npm install -g tree-sitter-cli 2>/dev/null || true
+fi
+
 if command -v mise >/dev/null 2>&1; then
   mise trust --yes 2>/dev/null || true
   eval "$(mise activate zsh)"
