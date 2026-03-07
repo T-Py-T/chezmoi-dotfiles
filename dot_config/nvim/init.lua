@@ -593,11 +593,8 @@ require('lazy').setup({
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
       --  See `:help lsp-config` for information about keys and how to configure
       local servers = {
-        clangd = {},
-        gopls = {},
-        pyright = {},
-        typescript_language_server = {},
-        bash_language_server = {},
+        pyright = {},  -- Python
+        gopls = {},    -- Go
       }
 
       -- Ensure the servers and tools above are installed
