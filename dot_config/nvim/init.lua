@@ -597,10 +597,7 @@ require('lazy').setup({
         gopls = {},
         pyright = {},
         typescript_language_server = {},
-        -- Ruby language server (ruby-lsp)
-        ruby_lsp = {},
-        -- Bash language server
-        bashls = {},
+        bash_language_server = {},
       }
 
       -- Ensure the servers and tools above are installed
