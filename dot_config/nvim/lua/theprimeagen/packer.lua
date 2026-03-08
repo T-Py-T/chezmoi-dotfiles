@@ -80,4 +80,3 @@ return require("packer").startup(function(use)
   use("laytan/cloak.nvim")
 
 end)
-

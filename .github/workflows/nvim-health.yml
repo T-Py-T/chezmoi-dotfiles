@@ -1,0 +1,76 @@
+# .github/workflows/nvim-health.yml
+# Validates the NeoVim config by running :checkhealth headlessly.
+# Fails the workflow if any ERROR lines appear in the health report.
+# Does not run the full chezmoi apply - copies the nvim config directly.
+
+name: nvim health check
+
+on:
+  push:
+    paths:
+      - "dot_config/nvim/**"
+      - "scripts/check-nvim-health.sh"
+      - ".github/workflows/nvim-health.yml"
+  pull_request:
+    paths:
+      - "dot_config/nvim/**"
+      - "scripts/check-nvim-health.sh"
+  workflow_dispatch:
+
+jobs:
+  nvim-health:
+    name: checkhealth
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: install neovim
+        run: |
+          curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+          tar -xzf nvim-linux-x86_64.tar.gz -C /tmp
+          echo "/tmp/nvim-linux-x86_64/bin" >> "$GITHUB_PATH"
+
+      - name: install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            git \
+            curl \
+            luarocks \
+            build-essential \
+            cmake \
+            ninja-build \
+            ncurses-bin \
+            pkg-config
+
+      - name: install node (for tree-sitter-cli)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: install tree-sitter-cli
+        run: npm install -g tree-sitter-cli
+
+      - name: copy nvim config
+        run: |
+          mkdir -p "$HOME/.config"
+          # chezmoi uses dot_ prefix convention - copy and rename
+          cp -r dot_config/nvim "$HOME/.config/nvim"
+
+      - name: bootstrap lazy.nvim plugins
+        run: |
+          # Run lazy.nvim sync headlessly - installs all plugins
+          # Timeout at 5 minutes in case a plugin install hangs
+          timeout 300 nvim --headless -c "Lazy! sync" -c "qa!" 2>/dev/null || true
+        env:
+          # TERM must be set so nvim's terminal health check (infocmp -L) can find terminfo
+          TERM: xterm-256color
+
+      - name: run checkhealth
+        run: |
+          chmod +x scripts/check-nvim-health.sh
+          bash scripts/check-nvim-health.sh
+        env:
+          TERM: xterm-256color

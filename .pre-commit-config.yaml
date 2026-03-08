@@ -1,0 +1,47 @@
+# .pre-commit-config.yaml
+# Pre-commit hooks for validating dotfiles config files.
+# Does not run nvim health check (too slow for pre-commit, runs in CI instead).
+#
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      # Validate TOML syntax (mise.toml, starship.toml)
+      - id: check-toml
+      # Validate JSON syntax - exclude devcontainer.json since it uses JSONC (allows comments)
+      - id: check-json
+        exclude: devcontainer\.json$
+      # Validate YAML syntax (workflows, etc.)
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      # Basic file hygiene
+      - id: trailing-whitespace
+        exclude: \.md$
+      - id: end-of-file-fixer
+        exclude: \.md$
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=500]
+
+  # Shell script linting via shellcheck
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        # Also lint chezmoi template scripts (they are shell with .tmpl suffix)
+        files: \.(sh|bash)$|scripts/.*\.tmpl$
+        args: [--severity=warning, --shell=bash]
+
+  # Lua formatting check for nvim config
+  - repo: https://github.com/JohnnyMorganz/StyLua
+    rev: v2.0.2
+    hooks:
+      - id: stylua
+        # Only check files we own - exclude legacy theprimeagen/ reference files
+        # No --check: stylua auto-formats in place. If files change, git will detect the diff.
+        files: dot_config/nvim/.*\.lua$
+        exclude: dot_config/nvim/lua/theprimeagen/
+        args: [--config-path, .pre-commit/stylua.toml]

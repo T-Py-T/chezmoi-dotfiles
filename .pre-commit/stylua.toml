@@ -1,0 +1,11 @@
+# .pre-commit/stylua.toml
+# StyLua formatting config used by the pre-commit stylua hook.
+# Matches kickstart.nvim's default style (2-space indentation).
+# Does not apply to legacy theprimeagen/ files.
+
+column_width = 120
+line_endings = "Unix"
+indent_type = "Spaces"
+indent_width = 2
+quote_style = "AutoPreferSingle"
+call_parentheses = "Always"

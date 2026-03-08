@@ -1,0 +1,36 @@
+# brew/devcontainer/dot_Brewfile.tmpl
+# Homebrew bundle for devcontainer / DevPod environments.
+# Minimal set: only what is needed to support NeoVim and the terminal profile.
+# Does not include laptop-only tools (k8s clients, cloud CLIs, GUI apps, etc.).
+
+# NeoVim and its runtime dependencies
+brew "neovim"
+brew "luarocks"        # Lua package manager (nvim lazy.nvim dependency)
+brew "tree-sitter"     # Tree-sitter CLI (nvim parser compilation)
+
+# NeoVim search and navigation (Telescope live_grep, file find, fuzzy find)
+brew "ripgrep"
+brew "fd"
+brew "fzf"
+
+# Git tooling
+brew "git"
+brew "lazygit"         # Git TUI, used inside nvim
+
+# Terminal essentials
+brew "bat"             # Syntax-highlighted cat
+brew "eza"             # Modern ls replacement
+brew "htop"            # Process viewer
+brew "jq"              # JSON processor
+brew "tmux"            # Terminal multiplexer
+brew "wget"
+brew "zoxide"          # Smarter cd
+
+# Kubernetes
+brew "k9s"             # Terminal UI for kubernetes clusters
+brew "kubectx"         # kubectx + kubens (switch contexts and namespaces)
+
+# Shell tooling
+brew "pre-commit"      # Git hook manager
+brew "shellcheck"      # Shell script linter
+brew "starship"        # Cross-shell prompt

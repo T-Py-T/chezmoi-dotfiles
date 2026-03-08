@@ -1,0 +1,70 @@
+# .github/workflows/validate.yml
+# Validates config file syntax and shell scripts on every push.
+# Covers: TOML, JSON, YAML, shell scripts, and Lua formatting.
+# Does not validate nvim health (see nvim-health.yml for that).
+
+name: validate configs
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pre-commit:
+    name: lint and format checks
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: set up python (for pre-commit)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: install pre-commit
+        run: pip install pre-commit
+
+      - name: cache pre-commit environments
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: run pre-commit on all files
+        run: pre-commit run --all-files --show-diff-on-failure
+
+  validate-mise:
+    name: validate mise.toml
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: install mise
+        run: |
+          curl -fsLS https://mise.run | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: validate mise.toml parses without error
+        run: mise config ls
+
+  validate-starship:
+    name: validate starship.toml
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: install starship
+        run: |
+          curl -sS https://starship.rs/install.sh | sh -s -- --yes
+          echo "/usr/local/bin" >> "$GITHUB_PATH"
+
+      - name: validate starship config parses without error
+        run: |
+          STARSHIP_CONFIG="$PWD/dot_config/starship.toml" starship explain

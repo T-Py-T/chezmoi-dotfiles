@@ -1,41 +1,12 @@
 # mise.toml
-# Defines mise tools and task includes for this repo.
+# Manages language runtime versions only.
+# CLI tools (ripgrep, fzf, fd, kubectl, etc.) are installed via Homebrew Brewfiles.
 # Does not install tools automatically on its own.
 
 [tools]
-# Core languages and runtimes
+# Language runtimes - mise is the right tool for pinned runtime versions.
+# All other tools (starship, ripgrep, fzf, etc.) are installed via Homebrew Brewfiles.
 python = "3.14.3"
-go = "1.25.7"
-rust = "1.93.0"
-node = "22.12.0"
-
-# Shell & Terminal
-starship = "1.20.1"
-
-# NeoVim + NvChad dependencies
-# Search and filtering tools
-# ripgrep = "15.1.0"  # For live grep (commented due to GitHub rate limiting)
-# fd = "10.2.0"       # For find (commented due to GitHub rate limiting)
-# fzf = "0.67.0"      # For fuzzy finding (commented due to GitHub rate limiting)
-
-# Development tools
-# These require aqua and may fail with rate limiting - uncomment when available:
-# chezmoi = "2.69.3"
-# kubectl = "1.35.0"
-# kubectx = "0.9.5"
-# k9s = "0.50.18"
-# gofumpt = "0.9.2"
-# golangci-lint = "2.8.0"
-# goreleaser = "2.13.3"
-# mockery = "3.6.3"
-
-# Note: The following packages are better installed via system package manager
-# or included in Dockerfile due to complexity:
-# - git (system package)
-# - build-essential / gcc (system packages)
-# - curl (system package)
-# - ca-certificates (system package)
-# - gnupg (system package)
-# - zsh (system package)
-# - neovim (installed directly in Dockerfile to avoid vfox rate limiting)
-
+go     = "1.25.7"
+rust   = "1.93.0"
+node   = "22.12.0"

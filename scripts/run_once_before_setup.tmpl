@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # scripts/run_once_before_setup.tmpl
-# Installs Homebrew if missing and validates it.
-# Does not run Brewfile bundle steps.
+# Installs Homebrew if missing and activates it for the current shell session.
+# Does not run Brewfile bundle steps (that is handled by run_10_homebrew).
 
 set -eou pipefail
 
@@ -14,10 +14,16 @@ fi
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 {{- end }}
 
-[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+# Activate brew for the remainder of this script so subsequent chezmoi scripts
+# can call 'brew' directly. Covers both Linux and macOS install paths.
+if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+elif [ -f /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
 
-# Skip brew doctor in containers as it may warn about system configurations
-if [ ! -f /.dockerenv ] && [ ! -f /.devcontainer ]; then
+# Skip brew doctor in containers - it warns about system configs that don't matter there.
+if [ "${DEVCONTAINER:-0}" != "1" ] && [ ! -f /.dockerenv ]; then
   if ! brew doctor; then
     >&2 echo "Please fix the issues with Homebrew and run again."
     exit 1

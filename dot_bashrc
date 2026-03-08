@@ -1,0 +1,19 @@
+# dot_bashrc
+# Main bash initialization file that sources modular configs from ~/.config/bash/.
+# Mirrors the structure of dot_zshrc: entry point at root, modular configs under dot_config/.
+# Does not include all configuration inline.
+
+if command -v mise >/dev/null 2>&1; then
+  mise trust --yes 2>/dev/null || true
+  eval "$(mise activate bash)"
+fi
+
+# Source all modular bash configs
+for config in ~/.config/bash/*.bash; do
+  [ -f "$config" ] && source "$config"
+done
+
+# Load shared aliases if they exist
+if [ -f ~/.config/shell_aliases ]; then
+  source ~/.config/shell_aliases
+fi

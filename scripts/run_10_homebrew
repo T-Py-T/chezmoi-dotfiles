@@ -1,19 +1,33 @@
 #!/usr/bin/env bash
 # scripts/run_10_homebrew
-# Runs brew bundle using the OS-specific Brewfile.
-# Skipped in devpod environments to keep startup fast (tools via mise).
+# Runs brew bundle using the environment-appropriate Brewfile.
+# Devcontainers use the minimal devcontainer Brewfile instead of the full laptop one.
 
 set -euo pipefail
 
-# Skip brew bundle in containerized environments
-if [ -f /.dockerenv ] || [ -f /.devcontainer ]; then
-  echo "Skipping brew bundle in containerized environment (tools via mise)."
+source_dir="${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}"
+
+# Detect devcontainer via the DEVCONTAINER env var set in devcontainer.json.
+# Falls back to /.dockerenv for containers that don't set the env var.
+is_container=0
+if [ "${DEVCONTAINER:-0}" = "1" ] || [ -f /.dockerenv ]; then
+  is_container=1
+fi
+
+if [ "$is_container" = "1" ]; then
+  brewfile_path="${source_dir}/brew/devcontainer/dot_Brewfile.tmpl"
+  echo "Container environment detected. Using devcontainer Brewfile."
+  if [ -f "$brewfile_path" ]; then
+    brew bundle --file "$brewfile_path"
+  else
+    echo "Devcontainer Brewfile not found at $brewfile_path, skipping."
+  fi
   exit 0
 fi
 
+# Laptop / workstation: use OS-specific Brewfile
 brew update
 
-source_dir="${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}"
 brewfile_path=""
 case "$(uname -s)" in
   Linux)

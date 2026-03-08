@@ -1,17 +1,18 @@
 // .devcontainer/devcontainer.json
-// Defines a dev container for local chezmoi testing.
-// Does not run chezmoi apply automatically.
+// Defines a disposable, reusable devcontainer for testing the chezmoi dotfiles setup.
+// postStartCommand runs startup.sh which installs mise tools, applies dotfiles via chezmoi,
+// installs brew packages, and bootstraps NeoVim plugins.
 {
-  "name": "chezmoi-local-test",
+  "name": "chezmoi-dotfiles-test",
   "build": {
     "dockerfile": "Dockerfile"
   },
   "workspaceFolder": "/workspaces/chezmoi-dotfiles",
   "overrideCommand": false,
   "remoteUser": "taylor",
-  "shell": ["/bin/zsh", "-l", "-i"],
   "postStartCommand": "bash .devcontainer/startup.sh",
   "containerEnv": {
-    "CHEZMOI_SOURCE_DIR": "/workspaces/chezmoi-dotfiles"
+    "CHEZMOI_SOURCE_DIR": "/workspaces/chezmoi-dotfiles",
+    "DEVCONTAINER": "1"
   }
 }

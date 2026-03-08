@@ -9,4 +9,3 @@ if [[ -d /opt/homebrew/opt/fzf ]]; then
   # Key bindings
   source "/opt/homebrew/opt/fzf/shell/key-bindings.zsh" 2> /dev/null
 fi
-
