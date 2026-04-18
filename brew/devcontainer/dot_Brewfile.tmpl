@@ -5,8 +5,9 @@
 
 # NeoVim and its runtime dependencies
 brew "neovim"
-brew "luarocks"        # Lua package manager (nvim lazy.nvim dependency)
-brew "tree-sitter"     # Tree-sitter CLI (nvim parser compilation)
+brew "luarocks"        # Lua package manager (used by some plugins for rocks deps)
+brew "tree-sitter-cli" # Tree-sitter CLI binary (nvim-treesitter needs this to compile parsers;
+                       # the `tree-sitter` formula was split in 2025 and now only provides libtree-sitter.so)
 
 # NeoVim search and navigation (Telescope live_grep, file find, fuzzy find)
 brew "ripgrep"

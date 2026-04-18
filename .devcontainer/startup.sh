@@ -47,5 +47,8 @@ eval "$(mise activate bash)"
 pip install --quiet pynvim 2>/dev/null || true
 npm install -g neovim 2>/dev/null || true
 
-# 5. Bootstrap NeoVim plugins (lazy.nvim)
-timeout 120 nvim +LazySync +quit! 2>/dev/null || true
+# 5. Bootstrap NeoVim plugins (vim.pack)
+# On first launch vim.pack auto-clones every URL in init.lua's vim.pack.add({...}).
+# We also want the PackChanged build hook to run (builds telescope-fzf-native via make).
+# A plain headless boot is enough — vim.pack installs synchronously at startup.
+timeout 180 nvim --headless -c "qa" 2>/dev/null || true

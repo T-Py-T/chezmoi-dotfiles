@@ -2,7 +2,8 @@
 # scripts/devpod-up.sh
 # Performs a full clean rebuild of the DevPod workspace with no residual data.
 # This ensures no contamination from previous attempts.
-# Homebrew is installed but Brewfiles are empty (tools via mise).
+# Runs mise (language runtimes) + Homebrew (CLI tools from brew/devcontainer/Brewfile)
+# + chezmoi apply (dotfiles) + nvim headless boot (installs vim.pack plugins).
 
 set -euo pipefail
 

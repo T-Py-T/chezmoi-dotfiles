@@ -7,6 +7,13 @@
 FROM ubuntu:jammy
 
 ENV DEBIAN_FRONTEND=noninteractive
+# C.UTF-8 ships with ubuntu:jammy by default. Setting LANG/LC_ALL silences
+# `checkhealth` locale errors and ensures unicode renders correctly for nvim,
+# starship, eza, etc. TERM default prevents `infocmp` failures when nvim runs
+# headlessly (no TTY attached).
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV TERM=xterm-256color
 
 # Minimum packages required to bootstrap Homebrew on Linux.
 # Homebrew needs: bash, build-essential, ca-certificates, curl, file, git, procps.
@@ -34,10 +41,12 @@ RUN curl -fsLS https://get.chezmoi.io \
   | sh -s -- -b /usr/local/bin
 
 # Install NeoVim directly from release.
+# 0.12+ is required by init.lua (vim.pack plugin manager).
 # NeoVim is also in the devcontainer Brewfile but installing it here ensures
 # it is available before chezmoi/Homebrew run, so startup.sh can bootstrap plugins.
+ARG NVIM_VERSION=v0.12.1
 RUN mkdir -p /tmp/nvim && cd /tmp/nvim \
-  && curl -fLo nvim.tar.gz https://github.com/neovim/neovim/releases/download/v0.11.6/nvim-linux-arm64.tar.gz \
+  && curl -fLo nvim.tar.gz "https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux-arm64.tar.gz" \
   && tar xzf nvim.tar.gz \
   && mv nvim-linux-arm64/bin/nvim /usr/local/bin/ \
   && mv nvim-linux-arm64/lib/nvim /usr/local/lib/ \
