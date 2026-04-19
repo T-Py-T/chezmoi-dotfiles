@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: install neovim
         run: |
@@ -48,7 +48,7 @@ jobs:
             fd-find
 
       - name: install node (for tree-sitter-cli)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
 
