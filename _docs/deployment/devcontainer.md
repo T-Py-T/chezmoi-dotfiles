@@ -64,10 +64,26 @@ Pattern A is preferred because it works regardless of the IDE.
 
 `workspace-configs/Makefile` manages 6 DevPod workspaces. DevPod injects its own user setup (SSH keys, agent forwarding) and then runs `postCreateCommand`.
 
-Behavior already verified:
-- `DEVCONTAINER=1` is preserved in the DevPod-built container.
-- Chezmoi templates that branch on `chezmoi.os` correctly identify Linux.
-- `brew bundle` against the devcontainer Brewfile completes in ~2–3 minutes on a warm cache.
+For this repo specifically, `scripts/devpod-up.sh <name>` does a full clean rebuild. Use it when the Dockerfile or startup.sh changes and a warm workspace would skip the updates.
+
+**Live-verified end-to-end** (April 2026, post-vim.pack migration):
+- Fresh rebuild: ~4.5 min total (image build + apt + mise install + Homebrew install + brew bundle + nvim vim.pack install + PackChanged build hook).
+- `scripts/check-nvim-health.sh` inside the container: `OK:132 WARNINGS:27 ERRORS:0`.
+- All 19 vim.pack plugins clone to `~/.local/share/nvim/site/pack/core/opt/`.
+- `PackChanged` autocmd fires and compiles `telescope-fzf-native.nvim/build/libfzf.so` (arm64 Linux).
+- Tree-sitter parsers bundled with nvim (`c, lua, markdown, markdown_inline, query, vim, vimdoc`) report `OK`. Extras in `init.lua` (`bash, diff, html, luadoc`) install on first nvim launch via the nvim-treesitter async installer — needs `tree-sitter-cli` on PATH.
+
+### Expected warnings (these are not regressions)
+
+`checkhealth` reports 27 warnings in the headless devcontainer test. All are benign:
+
+- `blink_cmp_fuzzy lib is not downloaded/built` — we explicitly use `fuzzy = { implementation = 'lua' }` in init.lua.
+- `Ruby/Perl provider: disabled` — `vim.g.loaded_ruby_provider = 0` and same for perl in init.lua.
+- `Go/cargo/npm/node/Python neovim module not available` — mise is not activated in `bash -lc` (non-interactive login shell). An interactive shell (`zsh` as configured, or `bash -i`) activates mise and these warnings go away.
+- `stylua/gopls/pyright-langserver/lua-language-server not executable` — Mason installs these on first nvim launch, but the headless health check runs before Mason's async installer has finished.
+- `vim.ui.open: no handler found` — no `xdg-open` in the minimal Ubuntu base. Only matters for opening links/files from nvim. Install `xdg-utils` via apt if needed.
+- `No clipboard tool found` — no `xclip`/`wl-clipboard` in the container. `unnamedplus` clipboard register will no-op.
+- `opts.jump.float is deprecated. Feature will be removed in Nvim 0.14` — inherited from kickstart, works on 0.12/0.13. Revisit before 0.14.
 
 ## What is NOT in the devcontainer Brewfile
 
@@ -85,11 +101,15 @@ Intentionally excluded:
 
 | Issue | Cause | Fix |
 |---|---|---|
-| `brew doctor` fails inside container | Detects unusual environment | The `run_once_before_setup.tmpl` script skips `brew doctor` when `DEVCONTAINER=1` or `/.dockerenv` exists. If still failing, check that one of those signals is set. |
+| `brew doctor` fails inside container | Detects unusual environment | `scripts/run_once_before_setup.tmpl` skips `brew doctor` when `DEVCONTAINER=1` or `/.dockerenv` exists. If still failing, confirm one of those signals is set. |
 | chezmoi tries to install macOS-only casks | `uname -s` reporting wrong value, or DEVCONTAINER not set | Confirm `echo $DEVCONTAINER` returns `1` inside the container. If not, the `containerEnv` block in `devcontainer.json` is missing or wrong. |
-| Telescope `live_grep` finds nothing | `ripgrep` not installed | The devcontainer Brewfile includes ripgrep. If missing, `brew bundle` did not complete — check `postCreateCommand` logs. |
-| nvim plugins fail to compile | tree-sitter CLI missing | Brewfile includes `tree-sitter`. The `dot_zshrc` also installs `tree-sitter-cli` via npm if both nvim and npm are present. Both should not be needed, but redundancy is intentional. |
-| Container build is slow on every start | `postCreateCommand` runs every time | DevPod caches by `containerEnv` hash. If the `postCreateCommand` is hashed correctly it should only re-run on first build. Verify with `devpod logs <workspace>`. |
+| Telescope `live_grep` finds nothing | `ripgrep` not installed | The devcontainer Brewfile includes ripgrep. If missing, `brew bundle` did not complete — check `postStartCommand` logs. |
+| nvim treesitter parsers fail to compile | Wrong tree-sitter formula | As of 2025 the Homebrew `tree-sitter` formula only installs `libtree-sitter.so` (library). The CLI is now `brew "tree-sitter-cli"`. This repo's Brewfiles already use the CLI formula; if you vendor a different Brewfile, change it. `dot_zshrc` also has an npm fallback for shells where brew isn't present. |
+| `checkhealth` reports locale / UTF-8 errors | Ubuntu jammy base ships without LANG set | The Dockerfile sets `ENV LANG=C.UTF-8 LC_ALL=C.UTF-8`. If you strip those for a slimmer image, checkhealth will fail with `ERROR Locale does not support UTF-8`. |
+| `checkhealth` reports `{ "infocmp", "-L" }` failure | TERM empty or `dumb` in headless exec | The Dockerfile sets `ENV TERM=xterm-256color`. For containers where `docker exec` overrides TERM, pass `-e TERM=xterm-256color`. |
+| nvim 0.11 is installed, vim.pack missing | Dockerfile pinned an older nvim release | `.devcontainer/Dockerfile` pins nvim via `ARG NVIM_VERSION=v0.12.1`. Rebuild after bumping. The new init.lua has a version guard at the top and will error with a clear message on nvim < 0.12. |
+| `nvim +LazySync` fails | lazy.nvim removed as part of the 0.12 migration | `.devcontainer/startup.sh` now boots `nvim --headless -c "qa"` which triggers vim.pack's built-in install. `+LazySync` should not be used anywhere. |
+| Container build is slow on every start | `postStartCommand` runs every time | DevPod caches by `containerEnv` hash. `postStartCommand` runs on every start by design (as opposed to `postCreateCommand`). If the work should only happen once, move it to `postCreateCommand`. |
 
 ## Updating an existing devcontainer
 

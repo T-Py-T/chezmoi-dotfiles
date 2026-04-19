@@ -363,8 +363,17 @@ end
 -- [[ Treesitter ]]
 do
   local filetypes = {
-    'bash', 'c', 'diff', 'html', 'lua', 'luadoc',
-    'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc',
+    'bash',
+    'c',
+    'diff',
+    'html',
+    'lua',
+    'luadoc',
+    'markdown',
+    'markdown_inline',
+    'query',
+    'vim',
+    'vimdoc',
   }
   require('nvim-treesitter').install(filetypes)
   vim.api.nvim_create_autocmd('FileType', {
