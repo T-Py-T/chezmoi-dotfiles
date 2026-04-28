@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: install neovim
         run: |
@@ -43,10 +43,12 @@ jobs:
             cmake \
             ninja-build \
             ncurses-bin \
-            pkg-config
+            pkg-config \
+            ripgrep \
+            fd-find
 
       - name: install node (for tree-sitter-cli)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
 
@@ -59,13 +61,13 @@ jobs:
           # chezmoi uses dot_ prefix convention - copy and rename
           cp -r dot_config/nvim "$HOME/.config/nvim"
 
-      - name: bootstrap lazy.nvim plugins
+      - name: bootstrap vim.pack plugins
         run: |
-          # Run lazy.nvim sync headlessly - installs all plugins
-          # Timeout at 5 minutes in case a plugin install hangs
-          timeout 300 nvim --headless -c "Lazy! sync" -c "qa!" 2>/dev/null || true
+          # A plain headless boot triggers vim.pack.add() to clone every plugin URL
+          # listed in init.lua, and fires the PackChanged autocmd (which builds
+          # telescope-fzf-native via `make`). Timeout at 5 minutes in case of a hang.
+          timeout 300 nvim --headless -c "qa" 2>/dev/null || true
         env:
-          # TERM must be set so nvim's terminal health check (infocmp -L) can find terminfo
           TERM: xterm-256color
 
       - name: run checkhealth
