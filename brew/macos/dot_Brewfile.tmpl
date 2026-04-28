@@ -17,15 +17,11 @@ brew "neovim"
 brew "pyright"         # Python LSP (gopls is provided via `go install` below)
 
 # Languages and runtimes
-brew "go"
-brew "node"
+# python, go, node, rust are managed by mise (see mise.toml). Brew owns mise itself
+# plus runtime-adjacent tools (uv, openjdk) that mise does not handle.
+brew "mise"
 brew "openjdk@17"
-brew "pyenv"
-brew "python@3.10"
-brew "python@3.13"
-brew "python@3.14"
 brew "uv"
-brew "yarn"
 
 # Build tools
 brew "clang-format"
