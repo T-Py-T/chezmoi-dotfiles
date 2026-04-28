@@ -1,103 +1,172 @@
 # brew/macos/dot_Brewfile.tmpl
 # Homebrew bundle for macOS (Macbook).
 # Includes casks, GUI apps, and macOS-specific tools.
-# Language runtimes (python, go, rust, node) are managed by mise, not here.
 
-tap "aws/tap"
+tap "defenseunicorns/tap"
+tap "derailed/k9s"
 tap "hashicorp/tap"
-tap "homebrew/bundle"
+tap "humanlayer/humanlayer"
+tap "huseyinbabal/tap"
+tap "nikitabobko/tap"
+tap "y3owk1n/tap"
 
-# Core utilities
-brew "ack"
-brew "bat"
-brew "coreutils"
-brew "curl"
-brew "eza"
-brew "fd"
+# NeoVim and its runtime dependencies
+brew "neovim"
+
+# LSP servers (matched against vim.lsp.enable() calls in init.lua)
+brew "pyright"         # Python LSP (gopls is provided via `go install` below)
+
+# Languages and runtimes
+brew "go"
+brew "node"
+brew "openjdk@17"
+brew "pyenv"
+brew "python@3.10"
+brew "python@3.13"
+brew "python@3.14"
+brew "uv"
+brew "yarn"
+
+# Build tools
+brew "clang-format"
+brew "cmake"
+brew "conan"
+brew "openblas"
+
+# Search and navigation
 brew "fzf"
-brew "htop"
-brew "jq"
 brew "ripgrep"
-brew "tree-sitter-cli"
-brew "wget"
-brew "zoxide"
 
 # Git tooling
 brew "gh"
 brew "git"
-brew "git-lfs"
-brew "lazygit"
+brew "git-filter-repo"
+brew "glab"
 
-# NeoVim
-brew "luarocks"
-brew "neovim"
-
-# Shell and prompt
-brew "direnv"
-brew "pinentry-mac"
-brew "pre-commit"
-brew "shellcheck"
-brew "starship"
-brew "tmux"
-brew "zsh-autosuggestions"
-brew "zsh-syntax-highlighting"
-
-# Linters and dev tools
-brew "actionlint"
-brew "act"
-brew "chezmoi"
-brew "commitizen"
-brew "go-task"
+# Containers
+brew "crane"
+brew "docker"
+brew "grype"
 brew "hadolint"
+brew "podman"
+brew "syft"
 
 # Kubernetes
-brew "kubectl"
+brew "argocd"
+brew "helm"
+brew "kind"
+brew "kube-ps1"
 brew "kubectx"
+brew "kubernetes-cli"
+brew "minikube"
+brew "talosctl"
 
-# AWS and infrastructure
-brew "aws-sam-cli"
-brew "conftest"
-brew "opa"
-brew "terraform-docs"
-brew "tflint"
-brew "hashicorp/tap/packer"
-brew "hashicorp/tap/vault"
-brew "hashicorp/tap/waypoint"
+# Cloud
+brew "awscli"
+brew "sops"
 
-# Security
-brew "hopenpgp-tools"
-brew "ykpers"
+# CI/CD and dev tools
+brew "act"
+brew "opencode"
+brew "pre-commit"
 
-# Applications (macOS only)
-cask "1password"
-cask "docker"
-cask "drawio"
-cask "font-fira-code-nerd-font"
-cask "font-meslo-lg-nerd-font"
-cask "gpg-suite-no-mail"
-cask "insomnia"
-cask "notion"
-cask "notunes"
+# Database
+brew "postgresql@14"
+
+# Terminal essentials
+brew "btop"
+brew "dysk"
+brew "fastfetch"
+brew "jq"
+brew "p7zip"
+brew "starship"
+brew "tldr"
+brew "tmux"
+brew "tree"
+brew "w3m"
+brew "wget"
+brew "yq"
+
+# Misc
+brew "cmatrix"
+brew "exiftool"
+brew "sl"
+
+# Tap-specific CLIs
+brew "defenseunicorns/tap/uds"
+brew "defenseunicorns/tap/zarf"
+brew "derailed/k9s/k9s"
+brew "hashicorp/tap/terraform"
+brew "huseyinbabal/tap/taws"
+
+# Casks (GUI apps)
+
+# Browsers
+cask "firefox"
+
+# Terminal emulators
+cask "ghostty"
+cask "iterm2"
+
+# Fonts
+cask "font-jetbrains-mono-nerd-font"
+
+# Editors and IDEs
+cask "cursor"
+
+# AI
+cask "claude"
+
+# Communication
+cask "discord"
 cask "slack"
-cask "tailscale"
-cask "tuple"
-cask "visual-studio-code"
-cask "wezterm"
-cask "zoom"
 
-# VSCode extensions
-vscode "davidanson.vscode-markdownlint"
-vscode "eamodio.gitlens"
-vscode "equinusocio.vsc-material-theme"
-vscode "equinusocio.vsc-material-theme-icons"
-vscode "github.copilot"
-vscode "github.copilot-chat"
+# Productivity
+cask "adobe-acrobat-reader"
+cask "obsidian"
+cask "onlyoffice"
+
+# Window management and input
+cask "karabiner-elements"
+cask "middle"
+cask "nikitabobko/tap/aerospace"
+cask "rectangle"
+cask "y3owk1n/tap/neru"
+
+# Containers and devcontainers
+cask "devpod"
+cask "kubecontext"
+cask "orbstack"
+cask "utm"
+
+# Media
+cask "airflow"
+cask "gstreamer-runtime"
+cask "vlc"
+
+# Hardware and 3D printing
+cask "arduino-ide@nightly"
+cask "balenaetcher"
+cask "bambu-studio"
+
+# VS Code / Cursor extensions
+vscode "anthropic.claude-code"
+vscode "anysphere.cursorpyright"
+vscode "anysphere.remote-containers"
+vscode "anysphere.remote-ssh"
 vscode "github.vscode-github-actions"
-vscode "golang.go"
-vscode "hashicorp.terraform"
+vscode "github.vscode-pull-request-github"
+vscode "gitlab.gitlab-workflow"
+vscode "ms-azuretools.vscode-containers"
 vscode "ms-azuretools.vscode-docker"
-vscode "ms-vscode-remote.remote-containers"
-vscode "ms-vscode.makefile-tools"
-vscode "ms-vsliveshare.vsliveshare"
-vscode "streetsidesoftware.code-spell-checker"
-vscode "visualstudioexptteam.vscodeintellicode"
+vscode "ms-kubernetes-tools.vscode-kubernetes-tools"
+vscode "ms-python.debugpy"
+vscode "ms-python.python"
+vscode "pkief.material-icon-theme"
+vscode "redhat.vscode-yaml"
+vscode "sanjulaganepola.github-local-actions"
+vscode "shd101wyy.markdown-preview-enhanced"
+vscode "vscodevim.vim"
+
+# Go binaries
+go "golang.org/x/tools/gopls"

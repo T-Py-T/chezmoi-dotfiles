@@ -5,19 +5,15 @@
 
 tap "aws/tap"
 
-# Core utilities
-brew "bat"
-brew "coreutils"
-brew "curl"
-brew "eza"
+# NeoVim and its runtime dependencies
+brew "neovim"
+brew "luarocks"
+brew "tree-sitter-cli"
+
+# Search and navigation
 brew "fd"
 brew "fzf"
-brew "htop"
-brew "jq"
 brew "ripgrep"
-brew "tree-sitter-cli"
-brew "wget"
-brew "zoxide"
 
 # Git tooling
 brew "gh"
@@ -25,33 +21,39 @@ brew "git"
 brew "git-lfs"
 brew "lazygit"
 
-# NeoVim
-brew "luarocks"
-brew "neovim"
+# Terminal essentials
+brew "bat"
+brew "coreutils"
+brew "curl"
+brew "eza"
+brew "htop"
+brew "jq"
+brew "tmux"
+brew "wget"
+brew "zoxide"
 
-# Shell and prompt
+# Shell tooling
 brew "direnv"
 brew "pre-commit"
 brew "shellcheck"
 brew "starship"
-brew "tmux"
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
-
-# Linters and dev tools
-brew "actionlint"
-brew "act"
-brew "chezmoi"
-brew "commitizen"
-brew "go-task"
-brew "hadolint"
 
 # Kubernetes
 brew "kubectl"
 brew "kubectx"
 
-# AWS
+# Linters and dev tools
+brew "act"
+brew "actionlint"
+brew "chezmoi"
+brew "commitizen"
+brew "go-task"
+brew "hadolint"
+
+# Cloud
 brew "aws-sam-cli"
 
-# Other
+# Hardware
 brew "ykpers"

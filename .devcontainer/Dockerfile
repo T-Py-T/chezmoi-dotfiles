@@ -41,10 +41,11 @@ RUN curl -fsLS https://get.chezmoi.io \
   | sh -s -- -b /usr/local/bin
 
 # Install NeoVim directly from release.
-# 0.12+ is required by init.lua (vim.pack plugin manager).
+# 0.12.2 is the latest stable; required by init.lua (vim.pack plugin manager,
+# vim.lsp.enable, vim.lsp.completion.enable). 0.13 is nightly-only as of this writing.
 # NeoVim is also in the devcontainer Brewfile but installing it here ensures
 # it is available before chezmoi/Homebrew run, so startup.sh can bootstrap plugins.
-ARG NVIM_VERSION=v0.12.1
+ARG NVIM_VERSION=v0.12.2
 RUN mkdir -p /tmp/nvim && cd /tmp/nvim \
   && curl -fLo nvim.tar.gz "https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux-arm64.tar.gz" \
   && tar xzf nvim.tar.gz \

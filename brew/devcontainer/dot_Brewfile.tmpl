@@ -9,6 +9,10 @@ brew "luarocks"        # Lua package manager (used by some plugins for rocks dep
 brew "tree-sitter-cli" # Tree-sitter CLI binary (nvim-treesitter needs this to compile parsers;
                        # the `tree-sitter` formula was split in 2025 and now only provides libtree-sitter.so)
 
+# LSP servers (matched against vim.lsp.enable() calls in init.lua)
+brew "pyright"         # Python LSP
+# gopls is provided via `go install` in the macOS Brewfile; install here on demand
+
 # NeoVim search and navigation (Telescope live_grep, file find, fuzzy find)
 brew "ripgrep"
 brew "fd"
