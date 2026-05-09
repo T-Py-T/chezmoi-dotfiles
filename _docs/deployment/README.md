@@ -56,6 +56,6 @@ There is intentionally no separate Brewfile for Fedora Atomic vs Ubuntu vs WSL. 
 To keep the bootstrap fast and portable, these belong elsewhere:
 
 - **Project source code** — separate repos.
-- **AI tool configs** (Claude / Cursor / Gemini global rules) — `workspace-configs` repo, symlinked into `~`.
+- **AI tool configs** (e.g. Claude, Gemini global rules) — `workspace-configs` repo, symlinked into `~`.
 - **Per-machine secrets** — 1Password, kept out of git entirely. chezmoi has 1Password integration if needed later.
 - **GUI app preferences** — only when they have a config file that lives under `~/.config/`. macOS plist tweaks via `defaults write` are out of scope; if needed, a separate setup script lives in `workspace-configs/macos-dev/`.

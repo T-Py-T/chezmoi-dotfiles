@@ -23,6 +23,7 @@ The leading underscore (`_docs`) sorts the folder near the top of file listings 
 - [macOS](deployment/macos.md) — current laptop setup
 - [Devcontainer](deployment/devcontainer.md) — minimal containerized environment
 - [Linux traditional](deployment/linux-traditional.md) — Ubuntu/Arch/WSL fallback notes
+- [Git commit trailers](findings/git-commit-trailers.md) — if `Co-authored-by` lines appear without you typing them
 
 ## Conventions
 
