@@ -2,7 +2,7 @@
 # Starship shell prompt configuration for bash and zsh
 # Top banner: location + git info
 # Bottom banner: versions, tools, time
-# Cursor: minimal >
+# Prompt glyph: minimal ">" via [character] below.
 
 format = """
 $directory$git_branch$git_status
