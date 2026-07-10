@@ -46,10 +46,11 @@ The `scripts/run_10_homebrew` script branches on environment:
 | Detection | Brewfile used |
 |---|---|
 | `DEVCONTAINER=1` env or `/.dockerenv` exists | `brew/devcontainer/dot_Brewfile.tmpl` |
-| `uname -s` = `Linux` (covers Atomic, WSL, regular distros) | `brew/linux/dot_Brewfile.tmpl` |
+| `uname -s` = `Linux` **and** WSL detected (`/proc/version` or `$WSL_DISTRO_NAME`) | `brew/linux/dot_Brewfile-wsl.tmpl` |
+| `uname -s` = `Linux` (Fedora Atomic, regular distros) | `brew/linux/dot_Brewfile.tmpl` |
 | `uname -s` = `Darwin` | `brew/macos/dot_Brewfile.tmpl` |
 
-There is intentionally no separate Brewfile for Fedora Atomic vs Ubuntu vs WSL. If a tool installs cleanly via Homebrew on Linux, it goes in the single Linux Brewfile. Atomic-specific things (Quadlet container files, `rpm-ostree` layered packages) live elsewhere — see the Fedora Atomic doc.
+The base Linux Brewfile covers Fedora Atomic, regular distros, and WSL. WSL additionally layers a superset (`dot_Brewfile-wsl.tmpl` = base + terminal extras like a Nerd Font and the `omp`/`herdr` agents) selected automatically when `scripts/run_10_homebrew` detects WSL. If a tool installs cleanly via Homebrew on Linux, it goes in the base Linux Brewfile. Atomic-specific things (Quadlet container files, `rpm-ostree` layered packages) live elsewhere — see the Fedora Atomic doc.
 
 ## What does NOT go in this repo
 

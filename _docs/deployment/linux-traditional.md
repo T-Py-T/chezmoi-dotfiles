@@ -60,6 +60,8 @@ These are required by Homebrew itself. The chezmoi `run_once_before_setup.tmpl` 
 | systemd | Enable via `/etc/wsl.conf` if needed for Quadlet-style services (uncommon in WSL). |
 | Path collision | Windows PATH leaks into WSL by default. Disable in `/etc/wsl.conf` if it causes issues. |
 | Chezmoi `.os` template | Returns `linux` correctly under WSL. No special handling needed. |
+| Nerd Font glyphs (omp, yazi) | Terminal renders with Windows-side fonts, not Linux fontconfig. Needs a two-part install — see [nerd-fonts-wsl.md](nerd-fonts-wsl.md). |
+| Brewfile | WSL uses the superset `brew/linux/dot_Brewfile-wsl.tmpl` (base + terminal extras), auto-selected by `scripts/run_10_homebrew`. |
 
 ## Cloud VM-specific notes
 

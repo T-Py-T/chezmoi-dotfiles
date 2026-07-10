@@ -1,0 +1,94 @@
+# brew/linux/dot_Brewfile-wsl.tmpl
+# Homebrew bundle for WSL2 (Windows Subsystem for Linux).
+# Superset of brew/linux/dot_Brewfile.tmpl: the shared Linux base PLUS the extra
+# tooling that makes the WSL terminal experience complete (agents, network tools,
+# a Nerd Font, etc.). Selected automatically by scripts/run_10_homebrew when it
+# detects WSL; plain Linux hosts keep using dot_Brewfile.tmpl.
+# Language runtimes (python, go, rust, node) are managed by mise, not here.
+
+tap "aws/tap"
+
+# Third-party taps
+tap "can1357/tap"
+tap "valkyrie00/bbrew", "https://github.com/Valkyrie00/homebrew-bbrew"
+
+# Language runtime manager (python, go, node, rust pinned in mise.toml)
+brew "mise"
+
+# NeoVim and its runtime dependencies
+brew "neovim"
+brew "luarocks"
+brew "tree-sitter-cli"
+
+# Search and navigation
+brew "fd"
+brew "fzf"
+brew "ripgrep"
+
+# Git tooling
+brew "gh"
+brew "git"
+brew "git-lfs"
+brew "lazygit"
+
+# Terminal essentials
+brew "bat"
+brew "coreutils"
+brew "curl"
+brew "eza"
+brew "htop"
+brew "jq"
+brew "tmux"
+brew "wget"
+brew "zoxide"
+brew "yazi"
+
+# Shell tooling
+brew "direnv"
+brew "pre-commit"
+brew "shellcheck"
+brew "starship"
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+
+# Kubernetes
+brew "kubectl"
+brew "kubectx"
+
+# Linters and dev tools
+brew "act"
+brew "actionlint"
+brew "chezmoi"
+brew "commitizen"
+brew "go-task"
+brew "hadolint"
+
+# Cloud
+brew "aws-sam-cli"
+
+# Hardware
+brew "ykpers"
+
+# Compilers and build tools
+brew "gcc"
+
+# Network scanning
+brew "arp-scan"
+brew "nmap"
+
+# Terminal agents
+# omp: the `omp` coding agent (Nerd Font TUI). herdr: terminal agent multiplexer.
+brew "can1357/tap/omp", trusted: true
+brew "herdr"
+
+# Homebrew TUI manager
+brew "valkyrie00/bbrew/bbrew", trusted: true
+
+# Fun
+brew "cmatrix"
+
+# Fonts
+# Cask fonts work on Linux brew (installed to ~/.local/share/fonts via fontconfig).
+# On WSL the Windows Terminal font must ALSO be set Windows-side; see
+# _docs/deployment/nerd-fonts-wsl.md.
+cask "font-agave-nerd-font"
