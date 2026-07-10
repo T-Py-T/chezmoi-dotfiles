@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# scripts/run_onchange_after_precommit.tmpl
+# Installs and builds the pre-commit git hooks in the chezmoi source repo so
+# dotfile commits are validated the same way on every dev workstation (macOS and
+# WSL alike). Runs AFTER run_10_homebrew (which installs the `pre-commit` binary
+# from the Brewfile) and re-runs whenever .pre-commit-config.yaml changes.
+#
+# Dependencies, both already handled by the standard bootstrap:
+#   - pre-commit  -> Homebrew (brew/*/dot_Brewfile*.tmpl)
+#   - python      -> mise (mise.toml), used to build the hook environments
+#
+# Re-run trigger (chezmoi re-runs run_onchange_ scripts when their rendered
+# content changes). Hash of the hook config:
+#   {{ include ".pre-commit-config.yaml" | sha256sum }}
+
+set -eou pipefail
+
+# Dev-only: skip in containers / CI where commit hooks are not wanted.
+if [ "${DEVCONTAINER:-0}" = "1" ] || [ -f /.dockerenv ]; then
+  echo "Container detected; skipping pre-commit hook install."
+  exit 0
+fi
+
+# run_ scripts get a minimal environment; put brew (pre-commit) and mise-managed
+# runtimes (python) on PATH explicitly.
+if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+elif [ -f /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+mise_shims="${MISE_DATA_DIR:-$HOME/.local/share/mise}/shims"
+[ -d "$mise_shims" ] && export PATH="$mise_shims:$PATH"
+# Rust-based hooks (e.g. stylua) need a real rustup. mise's `rustup` shim is a
+# no-op that errors, so put cargo's bin FIRST (rustup/cargo real, python from mise).
+[ -d "$HOME/.cargo/bin" ] && export PATH="$HOME/.cargo/bin:$PATH"
+
+if ! command -v pre-commit >/dev/null 2>&1; then
+  >&2 echo "pre-commit not found (expected from the Brewfile). Skipping hook install."
+  exit 0
+fi
+
+src="{{ .chezmoi.sourceDir }}"
+if [ ! -d "$src/.git" ] || [ ! -f "$src/.pre-commit-config.yaml" ]; then
+  echo "chezmoi source is not a git repo with .pre-commit-config.yaml; nothing to do."
+  exit 0
+fi
+
+cd "$src"
+# Install the git hook (fast, required), then pre-build the hook environments
+# (best-effort: needs network + python, but a failure here must not abort apply).
+pre-commit install
+pre-commit install-hooks || >&2 echo "pre-commit: hook environments will build on first commit."

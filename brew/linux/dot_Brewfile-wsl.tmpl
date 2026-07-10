@@ -11,6 +11,7 @@ tap "aws/tap"
 # Third-party taps
 tap "can1357/tap"
 tap "valkyrie00/bbrew", "https://github.com/Valkyrie00/homebrew-bbrew"
+# tap "quarkdown-labs/quarkdown"   # disabled with quarkdown below (formula unbuildable via brew)
 
 # Language runtime manager (python, go, node, rust pinned in mise.toml)
 brew "mise"
@@ -83,6 +84,15 @@ brew "herdr"
 
 # Homebrew TUI manager
 brew "valkyrie00/bbrew/bbrew", trusted: true
+
+# Markdown typesetting (quarkdown document language)
+# DISABLED: quarkdown 2.3.1's Homebrew formula fails to build — its npm/puppeteer
+# postinstall downloads Chrome inside brew's build sandbox and errors out. An active
+# line here makes `brew bundle` and the trailing `brew upgrade` in run_10_homebrew
+# exit non-zero, aborting the chezmoi bootstrap. The already-installed 1.13.0 is
+# `brew pin`ned locally so updates skip it. Re-enable once upstream fixes it
+# (github.com/quarkdown-labs/homebrew-quarkdown), or install manually.
+# brew "quarkdown-labs/quarkdown/quarkdown", trusted: true
 
 # Fun
 brew "cmatrix"
