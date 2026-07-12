@@ -3,15 +3,24 @@
 # Mirrors the structure of dot_zshrc: entry point at root, modular configs under dot_config/.
 # Does not include all configuration inline.
 
+# Source all modular bash configs (00-homebrew.bash puts Homebrew on PATH).
+for config in ~/.config/bash/*.bash; do
+  [ -f "$config" ] && source "$config"
+done
+
+# Activate mise LAST so its runtime shims take precedence over Homebrew on PATH.
+# Guarantees the mise.toml-pinned runtimes win over any transitive brew go/node,
+# in every shell including non-interactive scripts. See README "Runtime vs tool strategy".
 if command -v mise >/dev/null 2>&1; then
   mise trust --yes 2>/dev/null || true
   eval "$(mise activate bash)"
 fi
 
-# Source all modular bash configs
-for config in ~/.config/bash/*.bash; do
-  [ -f "$config" ] && source "$config"
-done
+# Keep `go install` output in ~/go/bin, never in mise's GOROOT. mise points GOBIN
+# at the runtime dir by default, so go-installed tools can corrupt the pinned go.
+# Override GOBIN after activation and put ~/go/bin on PATH for gopls et al.
+export GOBIN="$HOME/go/bin"
+export PATH="$HOME/go/bin:$PATH"
 
 # Load shared aliases if they exist
 if [ -f ~/.config/shell_aliases ]; then

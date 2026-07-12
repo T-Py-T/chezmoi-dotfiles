@@ -64,11 +64,10 @@ Anything that requires `defaults write` or System Settings changes lives in `wor
 
 ## What is NOT in the macOS Brewfile
 
-Intentionally excluded:
+Intentionally excluded (mise itself IS in the Brewfile; see the repo README "Runtime vs tool strategy"):
 
 | Thing | Why it is not in the Brewfile |
 |---|---|
-| `mise` itself | Bootstrapped via curl in `run_once_before_setup.tmpl`. mise can self-install language runtimes; let it manage itself. |
 | Python / Node / Go / Rust | Managed by mise, not Homebrew. Pinned versions in `mise.toml`. |
 | App Store apps (Xcode, Pages, etc.) | No reliable automation path. Install manually. |
 | 1Password browser extension | Installs via the 1Password app itself. |
