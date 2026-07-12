@@ -39,9 +39,11 @@ case "$(uname -s)" in
 esac
 
 if [ -n "$brewfile_path" ] && [ -f "$brewfile_path" ]; then
-  brew bundle --file "$brewfile_path" --cleanup
+  brew bundle install --file "$brewfile_path"
+  brew bundle cleanup --file "$brewfile_path" --force
 else
-  brew bundle --global --cleanup
+  brew bundle install --global
+  brew bundle cleanup --global --force
 fi
 
 brew upgrade
