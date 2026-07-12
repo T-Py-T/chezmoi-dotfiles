@@ -22,10 +22,9 @@ elif [ -f /opt/homebrew/bin/brew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-# Skip brew doctor in containers - it warns about system configs that don't matter there.
+# brew doctor is diagnostic, not pass/fail: warnings (deprecated casks, unlinked
+# kegs, untrusted taps) are expected on a real machine and must not abort setup.
+# Surface the output in non-container environments but never fail on it.
 if [ "${DEVCONTAINER:-0}" != "1" ] && [ ! -f /.dockerenv ]; then
-  if ! brew doctor; then
-    >&2 echo "Please fix the issues with Homebrew and run again."
-    exit 1
-  fi
+  brew doctor || true
 fi

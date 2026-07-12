@@ -65,6 +65,10 @@ Settled decisions (an agent "fixing" any of these is creating a regression):
   mise. mise is runtimes only.
 - **Keep `.chezmoiignore`.** Without it, `chezmoi apply` dumps `README.md`,
   `_docs/`, `brew/`, and helper scripts into `~`.
+- **Third-party taps carry `trusted: true`** in the Brewfiles. Homebrew refuses
+  to load casks/formulae from untrusted taps, which aborts `brew bundle`.
+- **`adobe-acrobat-reader` is intentionally absent.** Adobe's installer rejects
+  Homebrew-managed upgrades and breaks `brew bundle`; install Reader manually.
 
 ## Supported platforms
 

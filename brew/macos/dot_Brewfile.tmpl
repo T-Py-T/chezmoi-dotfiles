@@ -2,16 +2,16 @@
 # Homebrew bundle for macOS (Macbook).
 # Includes casks, GUI apps, and macOS-specific tools.
 
-tap "can1357/tap"
-tap "defenseunicorns/tap"
-tap "derailed/k9s"
-tap "hashicorp/tap"
-tap "hudochenkov/sshpass"
-tap "huseyinbabal/tap"
-tap "local/legacy"
-tap "oven-sh/bun"
-tap "slp/krunkit"
-tap "y3owk1n/tap"
+tap "can1357/tap", trusted: true
+tap "defenseunicorns/tap", trusted: true
+tap "derailed/k9s", trusted: true
+tap "hashicorp/tap", trusted: true
+tap "hudochenkov/sshpass", trusted: true
+tap "huseyinbabal/tap", trusted: true
+tap "local/legacy", trusted: true
+tap "oven-sh/bun", trusted: true
+tap "slp/krunkit", trusted: true
+tap "y3owk1n/tap", trusted: true
 
 # NeoVim and its runtime dependencies
 brew "neovim"
@@ -145,7 +145,6 @@ cask "codex"
 cask "discord"
 
 # Productivity
-cask "adobe-acrobat-reader"
 cask "obsidian"
 cask "onlyoffice"
 cask "pearcleaner"
