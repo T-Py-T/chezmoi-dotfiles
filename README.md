@@ -2,20 +2,41 @@
 
 My personal dotfiles, managed by [chezmoi](https://www.chezmoi.io/).
 
-Targets macOS, Fedora Atomic (COSMIC), traditional Linux (incl. WSL), and devcontainers from a single repo. The right Brewfile is picked automatically based on environment.
+Targets macOS, Linux (incl. WSL and Fedora Atomic), and devcontainers from a single repo. The right Brewfile is picked automatically based on environment.
 
-## Setting up on a new machine
+## Overview
 
+One repo bootstraps a new machine to a working dev environment. It manages three layers:
+
+- **Dotfiles** - zsh/bash, starship prompt, neovim, tmux, aliases, and `~/.config/*`, materialized into `~` by chezmoi.
+- **Tools** - all CLI tools (and, on macOS, GUI casks + VS Code extensions) via Homebrew, from a per-OS Brewfile.
+- **Runtimes** - python, go, rust, node pinned in `mise.toml` and identical on every OS.
+
+The OS image itself stays stock (no custom image), and AI tool configs live in a separate `workspace-configs` repo. See [Runtime vs tool strategy](#runtime-vs-tool-strategy) for how mise and Homebrew divide responsibilities.
+
+## Getting started
+
+Full from-scratch walkthroughs, one per platform:
+
+- **[macOS](docs/macos.md)** - Apple Silicon MacBook
+- **[Linux](docs/linux.md)** - Ubuntu/Debian, Fedora, Arch, cloud VMs, servers
+- **[WSL](docs/wsl.md)** - Windows Subsystem for Linux
+
+Advanced environments: [Fedora Atomic](docs/fedora-atomic.md) (immutable desktop), [Devcontainer](docs/devcontainer.md) (per-project containers).
+
+The short version, once your platform's prerequisites (from the guide above) are in place:
+
+```sh
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply T-Py-T   # chezmoi + Homebrew + dotfiles + brew bundle
+mise install                                                   # pinned python/go/rust/node
 ```
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply $GITHUB_USERNAME
-```
 
-Per-platform prerequisites and the full bootstrap flow are documented in [`_docs/deployment/`](_docs/deployment/README.md).
+Then open a new shell. That's it - see your platform guide for verification and troubleshooting.
 
-## Updating dotfiles on a machine
+Update an existing machine:
 
-```
-chezmoi update
+```sh
+chezmoi update && brew upgrade && mise upgrade
 ```
 
 ## Repo layout
@@ -26,8 +47,8 @@ chezmoi update
 | `brew/{macos,linux,devcontainer}/` | Per-environment Brewfiles |
 | `mise.toml` | Pinned language runtimes (python, go, rust, node) |
 | `scripts/` | chezmoi `run_once_*` and `run_*` scripts |
-| `_docs/` | Deployment strategies, findings, decisions |
-| `.chezmoiignore` | Keeps repo infra (README, `_docs`, `brew/`, helper scripts) out of `~` |
+| `docs/` | Per-OS setup guides, plus findings and reference |
+| `.chezmoiignore` | Keeps repo infra (README, `docs`, `brew/`, helper scripts) out of `~` |
 
 ## Runtime vs tool strategy
 
@@ -64,20 +85,11 @@ Settled decisions (an agent "fixing" any of these is creating a regression):
 - **LSP servers (`pyright`) and `gopls` come from Homebrew / `go install`,** not
   mise. mise is runtimes only.
 - **Keep `.chezmoiignore`.** Without it, `chezmoi apply` dumps `README.md`,
-  `_docs/`, `brew/`, and helper scripts into `~`.
+  `docs/`, `brew/`, and helper scripts into `~`.
 - **Third-party taps carry `trusted: true`** in the Brewfiles. Homebrew refuses
   to load casks/formulae from untrusted taps, which aborts `brew bundle`.
 - **`adobe-acrobat-reader` is intentionally absent.** Adobe's installer rejects
   Homebrew-managed upgrades and breaks `brew bundle`; install Reader manually.
-
-## Supported platforms
-
-| Platform | Status | Doc |
-|---|---|---|
-| macOS (Apple Silicon) | Daily driver | [`_docs/deployment/macos.md`](_docs/deployment/macos.md) |
-| Fedora Atomic (COSMIC) | Strategy documented, not yet daily-driven | [`_docs/deployment/fedora-atomic-cosmic.md`](_docs/deployment/fedora-atomic-cosmic.md) |
-| Devcontainer / DevPod | Used across 6 project devcontainers | [`_docs/deployment/devcontainer.md`](_docs/deployment/devcontainer.md) |
-| Linux traditional / WSL | Fallback when Atomic isn't an option | [`_docs/deployment/linux-traditional.md`](_docs/deployment/linux-traditional.md) |
 
 ## Inspirations
 

@@ -2,7 +2,7 @@
 # Keeps repo infrastructure (docs, Brewfiles, helper scripts) out of $HOME on chezmoi apply.
 # Does not ignore dot_ files, run_ scripts, or mise.toml, which are intended home targets.
 README.md
-_docs
+docs
 brew
 scripts/check-nvim-health.sh
 scripts/devpod-up.sh

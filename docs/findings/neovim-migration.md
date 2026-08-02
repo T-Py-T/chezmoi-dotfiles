@@ -102,7 +102,7 @@ Active plugin list (11) at the end of this phase:
 After `chezmoi apply` places the new `init.lua`:
 
 1. Launch nvim. `vim.pack` clones all 19 plugins into `~/.local/share/nvim/site/pack/core/opt/` on first start.
-2. The `PackChanged` autocmd fires for `telescope-fzf-native.nvim` and runs `make` automatically. This requires `make` + a C compiler on the system. Both are in the Homebrew formulas, but on a bare Linux install make sure `build-essential` / `@development-tools` / `base-devel` is present (see `_docs/deployment/linux-traditional.md`).
+2. The `PackChanged` autocmd fires for `telescope-fzf-native.nvim` and runs `make` automatically. This requires `make` + a C compiler on the system. Both are in the Homebrew formulas, but on a bare Linux install make sure `build-essential` / `@development-tools` / `base-devel` is present (see `docs/linux.md`).
 3. Mason installs the configured LSP binaries on first launch (pyright, gopls, lua-language-server, etc.). Watch progress with `:Mason`.
 4. Treesitter parsers for the configured filetypes install on demand via `require('nvim-treesitter').install()`.
 
