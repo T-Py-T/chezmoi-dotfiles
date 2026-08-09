@@ -1,0 +1,9 @@
+# dot_bash_profile
+# Login-shell entry point for bash. macOS terminals start bash as a login shell,
+# which sources this file and NOT ~/.bashrc, so the modular PATH/tool setup there
+# (Homebrew, ~/.local/bin agent tools, mise) never runs without this bridge.
+# Does not add configuration of its own; all real setup lives in ~/.bashrc.
+
+if [ -f ~/.bashrc ]; then
+  source ~/.bashrc
+fi

@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Give every concurrent Beads worker a stable, unique audit identity.
+
+set -euo pipefail
+
+usage() {
+  echo "Usage: agent-bd <harness> <worker-id> -- <bd arguments...>" >&2
+  echo "Example: agent-bd omp worker-01 -- ready --claim --json" >&2
+}
+
+if [ "$#" -lt 4 ] || [ "$3" != "--" ]; then
+  usage
+  exit 2
+fi
+
+harness="$1"
+worker_id="$2"
+shift 3
+
+sanitize() {
+  printf '%s' "$1" | tr -cs '[:alnum:]_.-' '-'
+}
+
+harness="$(sanitize "$harness")"
+worker_id="$(sanitize "$worker_id")"
+user_name="$(sanitize "${USER:-$(id -un)}")"
+host_name="$(sanitize "$(hostname -s 2>/dev/null || hostname)")"
+
+if [ -z "$harness" ] || [ -z "$worker_id" ]; then
+  usage
+  exit 2
+fi
+
+if ! command -v bd >/dev/null 2>&1; then
+  echo "bd is not installed; apply the chezmoi agent stack first." >&2
+  exit 127
+fi
+
+actor="${user_name}@${host_name}:${harness}:${worker_id}"
+export BD_DISABLE_METRICS=1
+export BEADS_ACTOR="$actor"
+export BD_ACTOR="$actor"
+
+exec bd --actor "$actor" "$@"

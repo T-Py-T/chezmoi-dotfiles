@@ -17,6 +17,7 @@ Pick the one for your machine:
 
 ## Reference
 
+- [Agent stack](agent-stack.md) - verified coordination architecture, pinned runtimes, privacy defaults, multi-host limits, and upgrade procedure.
 - [findings/git-commit-trailers.md](findings/git-commit-trailers.md) - if `Co-authored-by` lines appear without you typing them.
 - [findings/neovim-migration.md](findings/neovim-migration.md) - the neovim vim.pack migration notes.
 - [Runtime vs tool strategy](../README.md#runtime-vs-tool-strategy) - how mise (runtimes) and Homebrew (tools) divide responsibilities. Read before changing package management.
@@ -27,14 +28,23 @@ Every platform runs the same three steps; only the prerequisites differ.
 
 ```
 0. Platform-specific prereqs        (see the per-OS guide)
-1. sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply T-Py-T
-   - installs chezmoi, clones the repo to ~/.local/share/chezmoi
+1. sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin
+   - installs the chezmoi binary (-b is required; the default is ./bin)
+2. chezmoi init --apply T-Py-T/chezmoi-dotfiles
+   - full owner/repo: the bare-username form hits a different, private repo
+   - clones the repo to ~/.local/share/chezmoi
    - run_once_before_setup   installs Homebrew (brew doctor is informational)
    - applies all dot_ files to ~ (incl. global ~/mise.toml)
-   - run_10_homebrew         runs brew bundle on the right Brewfile
-2. mise install                     installs the pinned runtimes
-3. new shell                        loads mise, starship, modular shell config
+   - run_10_homebrew         runs brew bundle on the right Brewfile,
+                             then brew bundle cleanup --force
+   - run_after_20_agent_tools installs verified Beads/OMP/Pi/Hermes releases
+3. new shell                        loads brew shellenv, mise, starship
+4. mise install                     installs the pinned runtimes
+5. agent-stack-doctor              verifies the portable agent layer
 ```
+
+Step 3 comes before step 4 on purpose: mise is installed by `brew bundle`, so it is not
+on `PATH` in the shell that ran the bootstrap.
 
 ## How the Brewfile is chosen
 

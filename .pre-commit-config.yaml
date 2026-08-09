@@ -32,7 +32,7 @@ repos:
     hooks:
       - id: shellcheck
         # Also lint chezmoi template scripts (they are shell with .tmpl suffix)
-        files: \.(sh|bash)$|scripts/.*\.tmpl$
+        files: \.(sh|bash)$|scripts/.*\.tmpl$|dot_local/bin/executable_.*$
         args: [--severity=warning, --shell=bash]
 
   # Lua formatting check for nvim config
