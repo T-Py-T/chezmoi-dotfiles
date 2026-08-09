@@ -11,6 +11,7 @@ How to take a fresh Linux install to a working dev environment with this repo. C
 - Homebrew (under `/home/linuxbrew`) with every CLI tool in `brew/linux/dot_Brewfile.tmpl`.
 - Pinned language runtimes (python, go, rust, node) via mise.
 - Shell (zsh/bash), prompt (starship), editor (neovim), tmux, and aliases configured in `~`.
+- Pinned Beads, OMP, Pi, and Hermes runtimes plus Dolt and the shared agent-coordination skill.
 
 No GUI casks - the Linux Brewfile is CLI-only. GUI apps on Linux come from your distro or Flatpak, not this repo.
 
@@ -38,21 +39,46 @@ That is all you install by hand. chezmoi, Homebrew, and mise come from the boots
 
 ## Bootstrap
 
-### 1. Install chezmoi and apply the dotfiles
+### 1. Install chezmoi
 
 ```sh
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply T-Py-T
+mkdir -p ~/.local/bin
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin
+export PATH="$HOME/.local/bin:$PATH"
 ```
+
+`-b` is required: the installer's default install directory is `./bin`, relative to the
+current directory.
+
+### 2. Clone and apply the dotfiles
+
+```sh
+chezmoi init --apply T-Py-T/chezmoi-dotfiles
+```
+
+Use the full `owner/repo`. The bare-username shorthand (`chezmoi init --apply T-Py-T`)
+expands to `github.com/T-Py-T/dotfiles`, a different and private repo.
 
 This one command:
 
-- Installs the `chezmoi` binary to `~/.local/bin`.
 - Clones this repo to `~/.local/share/chezmoi`.
 - Runs `run_once_before_setup` - installs Homebrew to `/home/linuxbrew` if missing (`brew doctor` output is informational and never aborts).
 - Applies every `dot_*` file to `~` (zsh, bash, tmux, `~/.config/*`, and the global `~/mise.toml`).
-- Runs `run_10_homebrew` - `brew bundle` against `brew/linux/dot_Brewfile.tmpl`. Selection is by `uname -s`, so every non-Atomic distro uses the same Linux Brewfile.
+- Runs `run_10_homebrew` - `brew bundle` against `brew/linux/dot_Brewfile.tmpl`, then `brew bundle cleanup --force`, which uninstalls any formula not listed there. Selection is by `uname -s`, so every non-Atomic distro uses the same Linux Brewfile.
+- Runs `run_after_20_agent_tools` - installs checksum-verified agent runtimes and merges only the portable Hermes worktree and skill settings.
 
-### 2. Install the pinned runtimes
+### 3. Start a fresh shell
+
+```sh
+exec bash
+```
+
+Required before the next step: mise is installed by `brew bundle`, so it is not on
+`PATH` in the shell that ran the bootstrap. A new shell loads `brew shellenv`, then mise
+activation, then starship. Use `exec zsh` only if zsh is installed - it is not in the
+Linux Brewfile.
+
+### 4. Install the pinned runtimes
 
 ```sh
 mise install
@@ -60,18 +86,19 @@ mise install
 
 Reads `~/mise.toml` and installs python, go, rust, and node at the pinned versions.
 
-### 3. Start a fresh shell
-
-Open a new shell (or `exec zsh` / `exec bash`) so mise activation, starship, and the modular shell config load.
-
 ## Verify
 
 ```sh
 brew bundle check --file ~/.local/share/chezmoi/brew/linux/dot_Brewfile.tmpl   # "dependencies are satisfied"
 mise current            # python/go/rust/node at pinned versions
 which go node python    # all resolve under ~/.local/share/mise/installs/...
-chezmoi status          # empty = everything applied
+chezmoi status          # only ' R scripts/10_homebrew' and ' R scripts/20_agent_tools'
+agent-stack-doctor      # pinned runtimes, shared skill, and isolation checks
 ```
+
+`chezmoi status` is never empty: the two `run_` scripts execute on every apply, so
+chezmoi always lists them as `R`. Only `M`/`A`/`D` lines on `dot_*` targets mean
+something is unapplied.
 
 ## Keeping it current
 
@@ -79,6 +106,7 @@ chezmoi status          # empty = everything applied
 chezmoi update          # pull latest from the repo and re-apply (re-runs brew bundle)
 brew upgrade            # upgrade installed formulae
 mise upgrade            # bump runtimes within the pins
+agent-stack-doctor
 ```
 
 ## Notes by environment

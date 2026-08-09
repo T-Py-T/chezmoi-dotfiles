@@ -7,6 +7,22 @@ set -euo pipefail
 
 source_dir="${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}"
 
+# chezmoi runs each script in its own process, so the `brew shellenv` that
+# run_once_before_setup evaluated does not reach here. On a machine where that
+# script just installed Homebrew, `brew` is not yet on PATH at all.
+if ! command -v brew >/dev/null 2>&1; then
+  if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+  elif [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [ -x /usr/local/bin/brew ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  else
+    echo "Homebrew is not installed and was not found in any standard location." >&2
+    exit 1
+  fi
+fi
+
 # Detect devcontainer via the DEVCONTAINER env var set in devcontainer.json.
 # Falls back to /.dockerenv for containers that don't set the env var.
 is_container=0

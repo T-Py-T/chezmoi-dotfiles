@@ -6,13 +6,17 @@ Targets macOS, Linux (incl. WSL and Fedora Atomic), and devcontainers from a sin
 
 ## Overview
 
-One repo bootstraps a new machine to a working dev environment. It manages three layers:
+One repo bootstraps a new machine to a working dev environment. It manages four layers:
 
 - **Dotfiles** - zsh/bash, starship prompt, neovim, tmux, aliases, and `~/.config/*`, materialized into `~` by chezmoi.
-- **Tools** - all CLI tools (and, on macOS, GUI casks + VS Code extensions) via Homebrew, from a per-OS Brewfile.
+- **Tools** - ordinary CLI tools (and, on macOS, GUI casks + VS Code extensions) via Homebrew, from a per-OS Brewfile. The pinned agent-runtime exception is documented below.
 - **Runtimes** - python, go, rust, node pinned in `mise.toml` and identical on every OS.
+- **Agent coordination** - checksum-pinned agent runtimes, a shared skill, privacy defaults, and diagnostics across macOS, WSL, and Linux.
 
-The OS image itself stays stock (no custom image), and AI tool configs live in a separate `workspace-configs` repo. See [Runtime vs tool strategy](#runtime-vs-tool-strategy) for how mise and Homebrew divide responsibilities.
+The OS image itself stays stock (no custom image). Full, harness-specific AI
+settings remain in the separate `workspace-configs` repo; this repo owns only
+the portable runtime and coordination layer. See [Agent stack](docs/agent-stack.md)
+and [Runtime vs tool strategy](#runtime-vs-tool-strategy).
 
 ## Getting started
 
@@ -27,16 +31,26 @@ Advanced environments: [Fedora Atomic](docs/fedora-atomic.md) (immutable desktop
 The short version, once your platform's prerequisites (from the guide above) are in place:
 
 ```sh
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply T-Py-T   # chezmoi + Homebrew + dotfiles + brew bundle
-mise install                                                   # pinned python/go/rust/node
+mkdir -p ~/.local/bin
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin   # chezmoi binary
+export PATH="$HOME/.local/bin:$PATH"
+chezmoi init --apply T-Py-T/chezmoi-dotfiles              # Homebrew + dotfiles + brew bundle + agent runtimes
+exec bash                                                 # pick up brew/mise on PATH
+mise install                                              # pinned python/go/rust/node
 ```
 
-Then open a new shell. That's it - see your platform guide for verification and troubleshooting.
+Use the full `owner/repo`: the bare-username shorthand (`--apply T-Py-T`) resolves to
+a different, private repo. `exec bash` before `mise install` is required - mise arrives
+with `brew bundle`, so it is not on `PATH` in the bootstrap shell.
+
+Then open a new shell and run `agent-stack-doctor`. See your platform guide for
+verification and troubleshooting.
 
 Update an existing machine:
 
 ```sh
 chezmoi update && brew upgrade && mise upgrade
+agent-stack-doctor
 ```
 
 ## Repo layout
@@ -44,6 +58,8 @@ chezmoi update && brew upgrade && mise upgrade
 | Path | What it is |
 |---|---|
 | `dot_*` / `dot_config/` | Files that chezmoi materializes into `~` |
+| `dot_agents/skills/` | Portable skills discovered by Codex, Pi, OMP, and Hermes |
+| `dot_local/bin/` | Small, portable coordination and diagnostic helpers |
 | `brew/{macos,linux,devcontainer}/` | Per-environment Brewfiles |
 | `mise.toml` | Pinned language runtimes (python, go, rust, node) |
 | `scripts/` | chezmoi `run_once_*` and `run_*` scripts |
@@ -61,9 +77,13 @@ The split:
 - **mise owns language runtimes** (python, go, rust, node). Versions are pinned in
   `mise.toml`, so every OS gets identical runtimes. `mise.toml` deploys to `~`
   (global) so runtimes resolve in every directory.
-- **Homebrew owns everything else** (CLI tools and GUI casks), via the per-OS
+- **Homebrew owns ordinary tools** (CLI tools and GUI casks), via the per-OS
   Brewfile under `brew/<os>/`. Homebrew may pull `go`/`node` in as transitive
   dependencies; that is fine because of the PATH rule below.
+- **The agent runtime installer owns Beads, OMP, Pi, and Hermes.** Those projects
+  move faster than their package-manager formulae, and Hermes explicitly
+  supports its own installer. Versions and release checksums are centralized in
+  `scripts/run_after_20_agent_tools.tmpl`; symlinks live in `~/.local/bin`.
 
 Non-negotiable mechanics:
 
@@ -88,6 +108,11 @@ Settled decisions (an agent "fixing" any of these is creating a regression):
   `docs/`, `brew/`, and helper scripts into `~`.
 - **Third-party taps carry `trusted: true`** in the Brewfiles. Homebrew refuses
   to load casks/formulae from untrusted taps, which aborts `brew bundle`.
+- **Do not add Beads, OMP, Pi, or Hermes to a Brewfile.** That would create two
+  update authorities and can silently select the wrong version on PATH.
+- **Do not track agent credentials, sessions, databases, or memory stores.** The
+  shared `~/.agents/skills` tree contains instructions only. Stateful and secret
+  files remain local to each harness.
 - **`adobe-acrobat-reader` is intentionally absent.** Adobe's installer rejects
   Homebrew-managed upgrades and breaks `brew bundle`; install Reader manually.
 

@@ -2,7 +2,6 @@
 # Homebrew bundle for macOS (Macbook).
 # Includes casks, GUI apps, and macOS-specific tools.
 
-tap "can1357/tap", trusted: true
 tap "defenseunicorns/tap", trusted: true
 tap "derailed/k9s", trusted: true
 tap "hashicorp/tap", trusted: true
@@ -76,10 +75,10 @@ brew "golangci-lint"
 brew "goreleaser"
 brew "herdr"
 brew "opencode"
-brew "pi-coding-agent"
 brew "pre-commit"
 
 # Database
+brew "dolt"             # Beads shared-server mode (embedded mode needs no daemon)
 brew "postgresql@14"
 
 # Terminal essentials
@@ -108,7 +107,6 @@ brew "exiftool"
 brew "sl"
 
 # Tap-specific CLIs
-brew "can1357/tap/omp"
 brew "defenseunicorns/tap/uds"
 brew "defenseunicorns/tap/zarf"
 brew "derailed/k9s/k9s"

@@ -6,3 +6,4 @@ docs
 brew
 scripts/check-nvim-health.sh
 scripts/devpod-up.sh
+scripts/merge-hermes-config.py

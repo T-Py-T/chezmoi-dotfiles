@@ -4,11 +4,14 @@ How to take a fresh Windows machine to a working Linux dev environment with this
 
 WSL reports as Linux (`uname -s` = `Linux`, chezmoi `.os` = `linux`), so it uses the Linux Brewfile and the same bootstrap as any other distro. What is different is getting WSL itself set up and a few Windows-integration gotchas.
 
+Every command below was run in order on a clean Ubuntu 24.04 WSL2 distro. Expect the whole thing to take 30-45 minutes, almost all of it inside `brew bundle`.
+
 ## What you end up with
 
 - A WSL2 Ubuntu distro with Homebrew (under `/home/linuxbrew`) and every CLI tool in `brew/linux/dot_Brewfile.tmpl`.
 - Pinned language runtimes (python, go, rust, node) via mise.
-- Shell (zsh/bash), prompt (starship), editor (neovim), tmux, and aliases configured in `~`.
+- Shell (bash), prompt (starship), editor (neovim), tmux, and aliases configured in `~`.
+- Linux-native Beads, OMP, Pi, and Hermes runtimes plus the shared agent-coordination skill. Nothing is installed into the Windows filesystem.
 
 ## Prerequisites
 
@@ -37,43 +40,115 @@ sudo apt update
 sudo apt install -y build-essential curl file git procps
 ```
 
-That is all you install by hand. chezmoi, Homebrew, and mise come from the bootstrap.
+These five are the only `apt` packages you install by hand. Homebrew on Linux cannot bootstrap itself without them, and everything after this point is installed by Homebrew, mise, or the agent-runtime installer.
 
 ## Bootstrap
 
-Run these inside the WSL Ubuntu shell.
+Run these inside the WSL Ubuntu shell. Do them in this order - each step depends on the one before it.
 
-### 1. Install chezmoi and apply the dotfiles
+### 1. Install chezmoi
 
 ```sh
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply T-Py-T
+mkdir -p ~/.local/bin
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin
+export PATH="$HOME/.local/bin:$PATH"
 ```
+
+`-b` is required. The installer's default install directory is `./bin`, relative to
+your current directory, so without it you get `~/bin/chezmoi` (or a stray `bin/`
+inside whatever directory you happened to be in). Ubuntu's stock `~/.profile`
+already adds `~/.local/bin` to `PATH` when the directory exists, so this is a
+one-time `export`; later shells pick it up automatically.
+
+### 2. Clone and apply the dotfiles
+
+```sh
+chezmoi init --apply T-Py-T/chezmoi-dotfiles
+```
+
+Use the **full `owner/repo`**. The bare-username form (`chezmoi init --apply T-Py-T`)
+expands to `github.com/T-Py-T/dotfiles`, which is a different, private, long-abandoned
+repo - not this one. That is the single most common way this setup fails, and it is why
+you would otherwise need `gh auth login` first. `T-Py-T/chezmoi-dotfiles` is public, so
+no GitHub authentication is needed at all.
 
 This one command:
 
-- Installs the `chezmoi` binary to `~/.local/bin`.
 - Clones this repo to `~/.local/share/chezmoi`.
-- Runs `run_once_before_setup` - installs Homebrew to `/home/linuxbrew` if missing (`brew doctor` output is informational and never aborts).
-- Applies every `dot_*` file to `~` (zsh, bash, tmux, `~/.config/*`, and the global `~/mise.toml`).
-- Runs `run_10_homebrew` - `brew bundle` against `brew/linux/dot_Brewfile.tmpl`.
+- Runs `run_once_before_setup` - installs Homebrew to `/home/linuxbrew` if missing (`brew doctor` output is informational and never aborts; the `ykpers` deprecation warning is expected).
+- Applies every `dot_*` file to `~` (bash, zsh, tmux, `~/.config/*`, and the global `~/mise.toml`).
+- Runs `run_10_homebrew` - `brew bundle` against `brew/linux/dot_Brewfile.tmpl`. This is the slow part.
+- Runs `run_after_20_agent_tools` inside WSL - installs the Linux release assets and keeps all agent state under the WSL home directory.
 
-### 2. Install the pinned runtimes
+Two things to know about this step:
+
+- `run_10_homebrew` finishes with `brew bundle cleanup --force`, which **uninstalls any
+  formula that is not in the Brewfile.** If you brew-installed tools by hand before
+  bootstrapping, they will be removed. Add them to `brew/linux/dot_Brewfile.tmpl` first
+  if you want to keep them.
+- Hermes may print `⚠ Playwright browser installation failed` and
+  `⚠ uv.lock sync failed ... falling back to PyPI resolve`. Neither is fatal; the apply
+  still exits 0. See troubleshooting below.
+
+### 3. Start a fresh shell
+
+```sh
+exec bash
+```
+
+Do this **before** the next step. `mise` is installed by `brew bundle`, so it is not on
+`PATH` in the shell that ran the bootstrap - running `mise install` there fails with
+`mise: command not found`. A new shell loads `~/.config/bash/00-homebrew.bash`
+(`brew shellenv`), then mise activation, then starship.
+
+`exec zsh` will not work: zsh is deliberately not in the Linux Brewfile. `~/.zshrc` is
+still deployed for machines that have zsh from elsewhere.
+
+### 4. Install the pinned runtimes
 
 ```sh
 mise install
 ```
 
-### 3. Start a fresh shell
-
-Close and reopen the Ubuntu terminal (or `exec zsh` / `exec bash`) so mise activation, starship, and the modular shell config load.
+Installs python, go, rust, and node at the versions pinned in `~/mise.toml`. Takes about
+a minute. Then `exec bash` once more so the new shims resolve.
 
 ## Verify
 
 ```sh
-brew bundle check --file ~/.local/share/chezmoi/brew/linux/dot_Brewfile.tmpl   # "dependencies are satisfied"
-mise current            # python/go/rust/node at pinned versions
-chezmoi status          # empty = everything applied
+mise current            # python/go/rust/node at the pinned versions
+brew bundle check --file ~/.local/share/chezmoi/brew/linux/dot_Brewfile.tmpl
+chezmoi status
+agent-stack-doctor
 ```
+
+Expected output:
+
+```
+$ mise current
+python 3.14.3
+go 1.25.7
+rust 1.93.0
+node 22.12.0
+
+$ brew bundle check --file ~/.local/share/chezmoi/brew/linux/dot_Brewfile.tmpl
+The Brewfile's dependencies are satisfied.
+
+$ chezmoi status
+ R scripts/10_homebrew
+ R scripts/20_agent_tools
+
+$ agent-stack-doctor
+...
+0 failure(s), 1 warning(s)
+```
+
+`chezmoi status` is **not** empty on a healthy machine. `run_10_homebrew` and
+`run_after_20_agent_tools` are run-every-apply scripts, so chezmoi always lists them as
+`R` (run). Only `M`/`A`/`D` lines on `dot_*` targets mean something is unapplied.
+
+`agent-stack-doctor` reporting `warn codex is not installed` is expected - Codex is not
+part of this repo's Brewfile. Only `failure(s)` matter.
 
 ## Keeping it current
 
@@ -81,6 +156,7 @@ chezmoi status          # empty = everything applied
 chezmoi update          # pull latest from the repo and re-apply
 brew upgrade
 mise upgrade
+agent-stack-doctor
 ```
 
 ## WSL-specific gotchas
@@ -98,7 +174,12 @@ mise upgrade
 | Symptom | Fix |
 |---|---|
 | `wsl --install` does nothing / old Windows | Requires Windows 10 2004+ or Windows 11. Update Windows, or install WSL from the Microsoft Store. |
+| Clone asks for GitHub credentials, or `~/.local/share/chezmoi` ends up empty | You used the bare-username shorthand and hit the wrong (private) repo. Run `rm -rf ~/.local/share/chezmoi` and re-init with the full `T-Py-T/chezmoi-dotfiles`. |
+| `chezmoi: command not found` right after install | You omitted `-b ~/.local/bin`; the binary is in `./bin` under whatever directory you ran the installer from. Re-run step 1. |
+| `mise: command not found` | You skipped the fresh shell. Run `exec bash`, then `mise install`. |
 | `brew` not found after bootstrap | Start a new shell so the `00-homebrew` module runs `brew shellenv`. |
+| Homebrew formulae you installed by hand disappeared | `brew bundle cleanup --force` removed them. Add them to `brew/linux/dot_Brewfile.tmpl`. |
+| `⚠ Playwright browser installation failed` during the Hermes step | Non-fatal; only Hermes browser tools are affected. Fix later with `cd ~/.hermes/hermes-agent && npx playwright install chromium`. |
 | `go`/`node` resolve to Homebrew, not the pinned version | Start a new shell - mise activates last so its shims win. |
 | Everything is slow | You are probably working under `/mnt/c/`. Move the project into `~/`. |
 
