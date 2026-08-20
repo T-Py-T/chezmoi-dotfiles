@@ -6,16 +6,11 @@
 name: nvim health check
 
 on:
-  push:
-    paths:
-      - "dot_config/nvim/**"
-      - "scripts/check-nvim-health.sh"
-      - ".github/workflows/nvim-health.yml"
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "dot_config/nvim/**"
       - "scripts/check-nvim-health.sh"
-  workflow_dispatch:
 
 jobs:
   nvim-health:
@@ -28,9 +23,14 @@ jobs:
 
       - name: install neovim
         run: |
-          curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
-          tar -xzf nvim-linux-x86_64.tar.gz -C /tmp
-          echo "/tmp/nvim-linux-x86_64/bin" >> "$GITHUB_PATH"
+          case "$(uname -m)" in
+            x86_64) archive="nvim-linux-x86_64" ;;
+            aarch64|arm64) archive="nvim-linux-arm64" ;;
+            *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+          esac
+          curl -fLO "https://github.com/neovim/neovim/releases/latest/download/${archive}.tar.gz"
+          tar -xzf "${archive}.tar.gz" -C /tmp
+          echo "/tmp/${archive}/bin" >> "$GITHUB_PATH"
 
       - name: install system dependencies
         run: |
