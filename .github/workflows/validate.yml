@@ -1,14 +1,13 @@
 # .github/workflows/validate.yml
-# Validates config file syntax and shell scripts on every push.
+# Validates config file syntax and shell scripts before merge.
 # Covers: TOML, JSON, YAML, shell scripts, and Lua formatting.
 # Does not validate nvim health (see nvim-health.yml for that).
 
 name: validate configs
 
 on:
-  push:
   pull_request:
-  workflow_dispatch:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
   pre-commit:
