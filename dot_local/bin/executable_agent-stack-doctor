@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+# Non-secret checks for the portable agent runtime and coordination defaults.
+
+set -u
+
+failures=0
+warnings=0
+
+pass() { printf 'ok    %s\n' "$1"; }
+warn() { printf 'warn  %s\n' "$1"; warnings=$((warnings + 1)); }
+fail() { printf 'fail  %s\n' "$1"; failures=$((failures + 1)); }
+
+check_version() {
+  local name="$1"
+  local expected="$2"
+  shift 2
+  local output
+  local first_line
+
+  if ! command -v "$name" >/dev/null 2>&1; then
+    fail "$name is not on PATH"
+    return
+  fi
+
+  if ! output="$("$@" 2>&1)"; then
+    fail "$name version command failed"
+    return
+  fi
+  first_line="$(printf '%s\n' "$output" | sed -n '1p')"
+  case "$output" in
+    *"$expected"*) pass "$name $first_line" ;;
+    *) fail "$name expected $expected; found $first_line" ;;
+  esac
+}
+
+warn_on_duplicates() {
+  local name="$1"
+  local paths
+  local count
+  paths="$(type -a -p "$name" 2>/dev/null | awk '!seen[$0]++')"
+  count="$(printf '%s\n' "$paths" | sed '/^$/d' | wc -l | tr -d ' ')"
+  if [ "$count" -gt 1 ]; then
+    warn "$name resolves from multiple locations: $(printf '%s' "$paths" | tr '\n' ' ')"
+  fi
+}
+
+check_version bd "1.1.2" bd --version
+check_version omp "17.2.10" omp --version
+check_version pi "0.84.1" pi --version
+
+for tool in bd omp pi; do
+  warn_on_duplicates "$tool"
+done
+
+tools_root="${AGENT_TOOLS_ROOT:-$HOME/.local/share/agent-tools}"
+hermes_profile_marker="$tools_root/hermes/.skip-profile"
+hermes_expected=1
+if [ -f "$hermes_profile_marker" ] || \
+   { [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; } || \
+   [ "${SKIP_HERMES_AGENT:-0}" = "1" ]; then
+  hermes_expected=0
+fi
+
+if [ "$hermes_expected" = "1" ]; then
+  check_version hermes "v0.20.0" hermes --version
+  warn_on_duplicates hermes
+else
+  if [ -f "$hermes_profile_marker" ]; then
+    hermes_skip_reason="$(sed -n '1p' "$hermes_profile_marker")"
+    warn "Hermes is outside this host profile ($hermes_skip_reason)"
+  else
+    warn "Hermes is outside this host profile"
+  fi
+fi
+
+skill_file="$HOME/.agents/skills/agent-work-coordination/SKILL.md"
+if [ -f "$skill_file" ]; then
+  pass "shared coordination skill is installed"
+else
+  fail "shared coordination skill is missing: $skill_file"
+fi
+
+if [ "${BD_DISABLE_METRICS:-0}" = "1" ]; then
+  pass "Beads metrics environment override is active"
+else
+  warn "BD_DISABLE_METRICS is not active in this shell; start a fresh shell"
+fi
+
+if [ "$hermes_expected" = "1" ] && command -v hermes >/dev/null 2>&1; then
+  if [ "$(hermes config get worktree 2>/dev/null)" = "true" ]; then
+    pass "Hermes worktree isolation is enabled"
+  else
+    fail "Hermes worktree isolation is not enabled"
+  fi
+  if hermes config get skills.external_dirs 2>/dev/null | grep -F ".agents/skills" >/dev/null; then
+    pass "Hermes reads the shared skill directory"
+  else
+    fail "Hermes does not read ~/.agents/skills"
+  fi
+fi
+
+for optional in codex herdr opencode; do
+  if command -v "$optional" >/dev/null 2>&1; then
+    pass "$optional is available at $(command -v "$optional")"
+  else
+    warn "$optional is not installed"
+  fi
+done
+
+printf '\n%d failure(s), %d warning(s)\n' "$failures" "$warnings"
+[ "$failures" -eq 0 ]

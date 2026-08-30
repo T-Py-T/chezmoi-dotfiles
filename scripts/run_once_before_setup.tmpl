@@ -10,9 +10,13 @@ if [ "${SKIP_BREW:-0}" = "1" ]; then
   exit 0
 fi
 
-{{- if not (lookPath "brew") }}
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-{{- end }}
+# Install Homebrew when nothing provides it yet. This is a runtime test rather
+# than a chezmoi template action so the file stays parseable (and lintable) bash.
+if ! command -v brew >/dev/null 2>&1 &&
+  [ ! -x /home/linuxbrew/.linuxbrew/bin/brew ] &&
+  [ ! -x /opt/homebrew/bin/brew ]; then
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
 
 # Activate brew for the remainder of this script so subsequent chezmoi scripts
 # can call 'brew' directly. Covers both Linux and macOS install paths.
@@ -22,10 +26,9 @@ elif [ -f /opt/homebrew/bin/brew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-# Skip brew doctor in containers - it warns about system configs that don't matter there.
+# brew doctor is diagnostic, not pass/fail: warnings (deprecated casks, unlinked
+# kegs, untrusted taps) are expected on a real machine and must not abort setup.
+# Surface the output in non-container environments but never fail on it.
 if [ "${DEVCONTAINER:-0}" != "1" ] && [ ! -f /.dockerenv ]; then
-  if ! brew doctor; then
-    >&2 echo "Please fix the issues with Homebrew and run again."
-    exit 1
-  fi
+  brew doctor || true
 fi

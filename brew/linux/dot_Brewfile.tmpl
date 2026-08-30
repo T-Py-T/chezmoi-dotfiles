@@ -3,10 +3,12 @@
 # Does not include macOS-only casks or formulas.
 # Language runtimes (python, go, rust, node) are managed by mise, not here.
 
-tap "aws/tap"
+tap "aws/tap", trusted: true
+tap "oven-sh/bun", trusted: true
 
 # Language runtime manager (python, go, node, rust pinned in mise.toml)
 brew "mise"
+brew "uv"
 
 # NeoVim and its runtime dependencies
 brew "neovim"
@@ -54,6 +56,12 @@ brew "chezmoi"
 brew "commitizen"
 brew "go-task"
 brew "hadolint"
+brew "herdr"
+brew "opencode"
+
+# Agent runtime dependencies
+brew "dolt"             # Beads shared-server mode (embedded mode needs no daemon)
+brew "oven-sh/bun/bun"  # OMP package and extension runtime
 
 # Cloud
 brew "aws-sam-cli"

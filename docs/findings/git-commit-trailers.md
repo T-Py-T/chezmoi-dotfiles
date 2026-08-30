@@ -1,4 +1,4 @@
-# _docs/findings/git-commit-trailers.md
+# docs/findings/git-commit-trailers.md
 # Records unexpected `Co-authored-by` lines appearing in commits on macOS.
 # Does not prescribe editor settings; only documents what we observed and a workaround.
 

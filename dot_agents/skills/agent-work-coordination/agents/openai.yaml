@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Work Coordination"
+  short_description: "Coordinate agents with Beads safely"
+  default_prompt: "Use $agent-work-coordination to claim and complete the next ready task safely."

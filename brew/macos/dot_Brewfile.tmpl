@@ -2,13 +2,15 @@
 # Homebrew bundle for macOS (Macbook).
 # Includes casks, GUI apps, and macOS-specific tools.
 
-tap "defenseunicorns/tap"
-tap "derailed/k9s"
-tap "hashicorp/tap"
-tap "humanlayer/humanlayer"
-tap "huseyinbabal/tap"
-tap "nikitabobko/tap"
-tap "y3owk1n/tap"
+tap "defenseunicorns/tap", trusted: true
+tap "derailed/k9s", trusted: true
+tap "hashicorp/tap", trusted: true
+tap "hudochenkov/sshpass", trusted: true
+tap "huseyinbabal/tap", trusted: true
+tap "local/legacy", trusted: true
+tap "oven-sh/bun", trusted: true
+tap "slp/krunkit", trusted: true
+tap "y3owk1n/tap", trusted: true
 
 # NeoVim and its runtime dependencies
 brew "neovim"
@@ -18,15 +20,20 @@ brew "pyright"         # Python LSP (gopls is provided via `go install` below)
 
 # Languages and runtimes
 # python, go, node, rust are managed by mise (see mise.toml). Brew owns mise itself
-# plus runtime-adjacent tools (uv, openjdk) that mise does not handle.
+# plus runtime-adjacent tools (uv, openjdk, yarn) that mise does not handle.
 brew "mise"
 brew "openjdk@17"
 brew "uv"
+brew "yarn"
 
 # Build tools
 brew "clang-format"
 brew "cmake"
 brew "conan"
+brew "just"
+brew "llvm"
+brew "llvm@21"
+brew "make"
 brew "openblas"
 
 # Search and navigation
@@ -44,7 +51,8 @@ brew "crane"
 brew "docker"
 brew "grype"
 brew "hadolint"
-brew "podman"
+brew "podman-compose"
+brew "qemu"
 brew "syft"
 
 # Kubernetes
@@ -63,10 +71,14 @@ brew "sops"
 
 # CI/CD and dev tools
 brew "act"
+brew "golangci-lint"
+brew "goreleaser"
+brew "herdr"
 brew "opencode"
 brew "pre-commit"
 
 # Database
+brew "dolt"             # Beads shared-server mode (embedded mode needs no daemon)
 brew "postgresql@14"
 
 # Terminal essentials
@@ -75,13 +87,19 @@ brew "dysk"
 brew "fastfetch"
 brew "jq"
 brew "p7zip"
+brew "rsync"
 brew "starship"
 brew "tldr"
 brew "tmux"
 brew "tree"
 brew "w3m"
 brew "wget"
+brew "yazi"
 brew "yq"
+
+# Disk and image tools
+brew "squashfs"
+brew "xorriso"
 
 # Misc
 brew "cmatrix"
@@ -93,7 +111,11 @@ brew "defenseunicorns/tap/uds"
 brew "defenseunicorns/tap/zarf"
 brew "derailed/k9s/k9s"
 brew "hashicorp/tap/terraform"
+brew "hudochenkov/sshpass/sshpass"
 brew "huseyinbabal/tap/taws"
+brew "local/legacy/podman@5.8.3"   # pinned podman engine
+brew "oven-sh/bun/bun"
+brew "slp/krunkit/krunkit"
 
 # Casks (GUI apps)
 
@@ -108,29 +130,32 @@ cask "iterm2"
 cask "font-jetbrains-mono-nerd-font"
 
 # Editors and IDEs
-# AI
+cask "cursor"
+cask "vscodium"
+
+# AI assistants
 cask "claude"
+cask "claude-code"
+cask "cmux"
+cask "codex"
 
 # Communication
 cask "discord"
-cask "slack"
 
 # Productivity
-cask "adobe-acrobat-reader"
 cask "obsidian"
 cask "onlyoffice"
+cask "pearcleaner"
 
 # Window management and input
 cask "karabiner-elements"
-cask "middle"
-cask "nikitabobko/tap/aerospace"
 cask "rectangle"
 cask "y3owk1n/tap/neru"
 
 # Containers and devcontainers
 cask "devpod"
 cask "kubecontext"
-cask "orbstack"
+cask "podman-desktop"
 cask "utm"
 
 # Media
@@ -145,9 +170,9 @@ cask "bambu-studio"
 
 # VS Code extensions (Homebrew vscode stanza)
 vscode "anthropic.claude-code"
-vscode "ms-python.vscode-pylance"
-vscode "ms-vscode-remote.remote-containers"
-vscode "ms-vscode-remote.remote-ssh"
+vscode "anysphere.cursorpyright"
+vscode "anysphere.remote-containers"
+vscode "anysphere.remote-ssh"
 vscode "github.vscode-github-actions"
 vscode "github.vscode-pull-request-github"
 vscode "gitlab.gitlab-workflow"
@@ -164,3 +189,4 @@ vscode "vscodevim.vim"
 
 # Go binaries
 go "golang.org/x/tools/gopls"
+go "github.com/tsenart/vegeta/v12"

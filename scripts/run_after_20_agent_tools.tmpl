@@ -1,0 +1,253 @@
+#!/usr/bin/env bash
+# Installs the fast-moving agent runtimes at reviewed, checksum-pinned versions.
+# Ordinary tools remain Homebrew-owned; see docs/agent-stack.md.
+
+set -euo pipefail
+
+if [ "${SKIP_AGENT_TOOLS:-0}" = "1" ]; then
+  echo "Skipping agent runtimes because SKIP_AGENT_TOOLS=1."
+  exit 0
+fi
+
+if [ "${DEVCONTAINER:-0}" = "1" ] || [ -f /.dockerenv ]; then
+  echo "Container environment detected. Skipping workstation agent runtimes."
+  exit 0
+fi
+
+readonly beads_version="1.1.2"
+readonly omp_version="17.2.10"
+readonly pi_version="0.84.1"
+readonly hermes_version="0.20.0"
+readonly hermes_release="2026.8.3"
+readonly hermes_commit="3c27eb6234bf91b8ceee9e9071591b31e9b148cb"
+readonly hermes_installer_sha256="45f589461248c7a6ec3aecd7522a69dd49c5c8dbf4798ba1296af5c0c5e7ccd3"
+
+# Each chezmoi script runs in its own process, so Homebrew's PATH from the
+# earlier scripts is gone. The Hermes installer shells out to brew-provided
+# tooling (uv, node), so put brew back on PATH when it exists.
+if ! command -v brew >/dev/null 2>&1; then
+  for brew_bin in /home/linuxbrew/.linuxbrew/bin/brew /opt/homebrew/bin/brew /usr/local/bin/brew; do
+    if [ -x "$brew_bin" ]; then
+      eval "$("$brew_bin" shellenv)"
+      break
+    fi
+  done
+fi
+
+tools_root="${AGENT_TOOLS_ROOT:-$HOME/.local/share/agent-tools}"
+bin_dir="${AGENT_BIN_DIR:-$HOME/.local/bin}"
+source_dir='{{ .chezmoi.sourceDir }}'
+temp_dir="$(mktemp -d)"
+
+cleanup() {
+  rm -rf -- "$temp_dir"
+}
+trap cleanup EXIT
+
+download() {
+  local url="$1"
+  local destination="$2"
+  curl --fail --location --silent --show-error "$url" --output "$destination"
+}
+
+verify_sha256() {
+  local expected="$1"
+  local file="$2"
+  local actual
+
+  if command -v sha256sum >/dev/null 2>&1; then
+    actual="$(sha256sum "$file" | awk '{print $1}')"
+  else
+    actual="$(shasum -a 256 "$file" | awk '{print $1}')"
+  fi
+
+  if [ "$actual" != "$expected" ]; then
+    echo "Checksum mismatch for $file" >&2
+    echo "Expected: $expected" >&2
+    echo "Actual:   $actual" >&2
+    exit 1
+  fi
+}
+
+link_tool() {
+  local name="$1"
+  local target="$2"
+  local link_path="$bin_dir/$name"
+
+  mkdir -p "$bin_dir"
+  if [ -e "$link_path" ] && [ ! -L "$link_path" ]; then
+    echo "Refusing to replace non-symlink: $link_path" >&2
+    exit 1
+  fi
+  ln -sfn "$target" "$link_path"
+}
+
+case "$(uname -s)" in
+  Darwin) platform="darwin" ;;
+  Linux) platform="linux" ;;
+  *)
+    echo "Agent runtimes are not configured for $(uname -s); skipping."
+    exit 0
+    ;;
+esac
+
+case "$(uname -m)" in
+  arm64 | aarch64)
+    asset_arch="arm64"
+    beads_arch="arm64"
+    ;;
+  x86_64 | amd64)
+    asset_arch="x64"
+    beads_arch="amd64"
+    ;;
+  *)
+    echo "Unsupported agent runtime architecture: $(uname -m)" >&2
+    exit 1
+    ;;
+esac
+
+case "$platform-$asset_arch" in
+  darwin-arm64)
+    beads_sha256="9b0137a83a2afd343e2abd2a506be72ea032721000f76669c2cf81729e78501d"
+    omp_sha256="e37fa3d4d3eeb15b71d5b464fde51f913e390978a48dc33b4c527b8eed7237c6"
+    pi_sha256="683c84261f40b870b4a7ccf181a48ad6ecd71853b0112d1bb617539530c6121d"
+    ;;
+  darwin-x64)
+    beads_sha256="0e94de9319c9d66cb7e0038bb17ebaf5dd2fe669e366a4b9153528b474a1a8f6"
+    omp_sha256="20647fe19ab2e474516555db5c813f5d9aeffc556e456cdf9ee89007c8a98bef"
+    pi_sha256="f9060962b9cca5438d7fb97b60adae9c9302503d39b68d8aea8b891e2eb3e786"
+    ;;
+  linux-arm64)
+    beads_sha256="a134015faf4be0a43f8681a8d602eaf0b7c255c957f09d3c933257c8c92fdd10"
+    omp_sha256="c935d5d25eb677a625934f81f4b21b0ff05b64400feb9e90f02f0efe39676386"
+    pi_sha256="ab95c058a4651b5ff5d8c878e524edfb776263c7a444f325505f247c056eecfc"
+    ;;
+  linux-x64)
+    beads_sha256="a72d71ed374955dc9f83a0f90b54bd7b6a0016709dd1676ae2e368651ed401c2"
+    omp_sha256="4fe564b23482cd627671a2417842498c97b2f72b5f8a3a4efb8094e623df7a33"
+    pi_sha256="5634d7ebd18274b63af3371e942f342d74bea012389575c1d1ff15ce6ca80c2f"
+    ;;
+esac
+
+hermes_supported=1
+if [ "$platform-$asset_arch" = "darwin-x64" ]; then
+  hermes_supported=0
+fi
+hermes_profile_marker="$tools_root/hermes/.skip-profile"
+
+# Beads: dependency-aware work ledger. Initialization is always project-local
+# and deliberately remains a separate, explicit human decision.
+beads_dir="$tools_root/beads/$beads_version"
+beads_bin="$beads_dir/bd"
+if [ ! -x "$beads_bin" ]; then
+  mkdir -p "$beads_dir" "$temp_dir/beads"
+  beads_archive="$temp_dir/beads.tar.gz"
+  download "https://github.com/gastownhall/beads/releases/download/v${beads_version}/beads_${beads_version}_${platform}_${beads_arch}.tar.gz" "$beads_archive"
+  verify_sha256 "$beads_sha256" "$beads_archive"
+  tar -xzf "$beads_archive" -C "$temp_dir/beads"
+  install -m 0755 "$temp_dir/beads/bd" "$beads_bin"
+fi
+"$beads_bin" --version | grep -F "$beads_version" >/dev/null
+BD_DISABLE_METRICS=1 "$beads_bin" metrics off >/dev/null
+link_tool bd "$beads_bin"
+
+# OMP: standalone release binary, pinned identically on every supported host.
+omp_dir="$tools_root/omp/$omp_version"
+omp_bin="$omp_dir/omp"
+if [ ! -x "$omp_bin" ]; then
+  mkdir -p "$omp_dir"
+  omp_download="$temp_dir/omp"
+  download "https://github.com/can1357/oh-my-pi/releases/download/v${omp_version}/omp-${platform}-${asset_arch}" "$omp_download"
+  verify_sha256 "$omp_sha256" "$omp_download"
+  install -m 0755 "$omp_download" "$omp_bin"
+fi
+"$omp_bin" --version | grep -F "$omp_version" >/dev/null
+link_tool omp "$omp_bin"
+
+# Pi ships support assets beside its executable, so retain the whole directory.
+pi_dir="$tools_root/pi/$pi_version"
+pi_bin="$pi_dir/pi"
+if [ ! -x "$pi_bin" ]; then
+  if [ -e "$pi_dir" ]; then
+    echo "Refusing to overwrite incomplete Pi directory: $pi_dir" >&2
+    exit 1
+  fi
+  mkdir -p "$(dirname "$pi_dir")" "$temp_dir/pi"
+  pi_archive="$temp_dir/pi.tar.gz"
+  download "https://github.com/earendil-works/pi/releases/download/v${pi_version}/pi-${platform}-${asset_arch}.tar.gz" "$pi_archive"
+  verify_sha256 "$pi_sha256" "$pi_archive"
+  tar -xzf "$pi_archive" -C "$temp_dir/pi"
+  if [ ! -x "$temp_dir/pi/pi/pi" ]; then
+    echo "Unexpected Pi archive layout" >&2
+    exit 1
+  fi
+  mv "$temp_dir/pi/pi" "$pi_dir"
+fi
+"$pi_bin" --version | grep -F "$pi_version" >/dev/null
+link_tool pi "$pi_bin"
+
+# Hermes upstream supports its own git/venv installer, not Homebrew or pip. A
+# dirty checkout is never rolled back; the user must reconcile it explicitly.
+if [ "${SKIP_HERMES_AGENT:-0}" = "1" ]; then
+  mkdir -p "$(dirname "$hermes_profile_marker")"
+  printf 'requested\n' > "$hermes_profile_marker"
+  hermes_status="Hermes skipped by request"
+elif [ "$hermes_supported" != "1" ]; then
+  mkdir -p "$(dirname "$hermes_profile_marker")"
+  printf 'unsupported-intel-macos\n' > "$hermes_profile_marker"
+  hermes_status="Hermes skipped on unsupported Intel macOS"
+else
+  if [ -f "$hermes_profile_marker" ]; then
+    rm -f -- "$hermes_profile_marker"
+  fi
+  hermes_home="${HERMES_HOME:-$HOME/.hermes}"
+  hermes_install_dir="${HERMES_INSTALL_DIR:-$hermes_home/hermes-agent}"
+  hermes_wrapper="$HOME/.local/bin/hermes"
+  current_commit=""
+  if [ -d "$hermes_install_dir/.git" ]; then
+    current_commit="$(git -C "$hermes_install_dir" rev-parse HEAD 2>/dev/null || true)"
+  fi
+
+  if [ "$current_commit" != "$hermes_commit" ] || [ ! -x "$hermes_wrapper" ]; then
+    if [ -e "$hermes_install_dir" ]; then
+      if [ ! -d "$hermes_install_dir/.git" ]; then
+        echo "Refusing to replace non-git Hermes directory: $hermes_install_dir" >&2
+        exit 1
+      fi
+      if [ -n "$(git -C "$hermes_install_dir" status --porcelain)" ]; then
+        echo "Hermes checkout has local changes; refusing pinned update: $hermes_install_dir" >&2
+        exit 1
+      fi
+    fi
+
+    hermes_installer="$temp_dir/hermes-install.sh"
+    download "https://raw.githubusercontent.com/NousResearch/hermes-agent/${hermes_commit}/scripts/install.sh" "$hermes_installer"
+    verify_sha256 "$hermes_installer_sha256" "$hermes_installer"
+    HERMES_HOME="$hermes_home" HERMES_INSTALL_DIR="$hermes_install_dir" \
+      bash "$hermes_installer" \
+        --branch main \
+        --commit "$hermes_commit" \
+        --force-commit \
+        --skip-setup \
+        --dir "$hermes_install_dir" \
+        --hermes-home "$hermes_home"
+  fi
+
+  "$hermes_wrapper" --version | grep -F "v${hermes_version}" >/dev/null
+  "$hermes_wrapper" --version | grep -F "$hermes_release" >/dev/null
+
+  hermes_python="$hermes_install_dir/venv/bin/python"
+  merge_helper="$source_dir/scripts/merge-hermes-config.py"
+  if [ ! -x "$hermes_python" ] || [ ! -f "$merge_helper" ]; then
+    echo "Cannot apply portable Hermes defaults; runtime or merge helper is missing." >&2
+    exit 1
+  fi
+  if [ "${SKIP_HERMES_CONFIG_MERGE:-0}" = "1" ]; then
+    echo "Leaving Hermes configuration to its existing source of truth."
+  else
+    "$hermes_python" "$merge_helper" "$hermes_home/config.yaml"
+  fi
+  hermes_status="Hermes $hermes_version"
+fi
+
+echo "Agent runtimes are current: Beads $beads_version, OMP $omp_version, Pi $pi_version, $hermes_status."
