@@ -2,7 +2,7 @@
 
 How to take a fresh Windows machine to a working Linux dev environment with this repo, running under WSL2 (Windows Subsystem for Linux).
 
-WSL reports as Linux (`uname -s` = `Linux`, chezmoi `.os` = `linux`), so it uses the Linux Brewfile and the same bootstrap as any other distro. What is different is getting WSL itself set up and a few Windows-integration gotchas.
+WSL reports as Linux (`uname -s` = `Linux`, chezmoi `.os` = `linux`), so it uses the Linux bootstrap with a WSL-specific Brewfile selected by `scripts/run_10_homebrew`. What is different is getting WSL itself set up and a few Windows-integration gotchas.
 
 Every command below was run in order on a clean Ubuntu 24.04 WSL2 distro. Expect the whole thing to take 30-45 minutes, almost all of it inside `brew bundle`.
 
@@ -77,7 +77,7 @@ This one command:
 - Clones this repo to `~/.local/share/chezmoi`.
 - Runs `run_once_before_setup` - installs Homebrew to `/home/linuxbrew` if missing (`brew doctor` output is informational and never aborts; the `ykpers` deprecation warning is expected).
 - Applies every `dot_*` file to `~` (bash, zsh, tmux, `~/.config/*`, and the global `~/mise.toml`).
-- Runs `run_10_homebrew` - `brew bundle` against `brew/linux/dot_Brewfile.tmpl`. This is the slow part.
+- Runs `run_10_homebrew` - `brew bundle` against `brew/linux/dot_Brewfile-wsl.tmpl`, the WSL superset containing the shared Linux tools plus WSL terminal extras and the Agave Nerd Font. This is the slow part.
 - Runs `run_after_20_agent_tools` inside WSL - installs the Linux release assets and keeps all agent state under the WSL home directory.
 
 Two things to know about this step:
@@ -86,8 +86,8 @@ Two things to know about this step:
   formula that is not in the Brewfile.** If you brew-installed tools by hand before
   bootstrapping, they will be removed. Add them to `brew/linux/dot_Brewfile.tmpl` first
   if you want to keep them.
-- Hermes may print `⚠ Playwright browser installation failed` and
-  `⚠ uv.lock sync failed ... falling back to PyPI resolve`. Neither is fatal; the apply
+- Hermes may print `WARNING: Playwright browser installation failed` and
+  `WARNING: uv.lock sync failed ... falling back to PyPI resolve`. Neither is fatal; the apply
   still exits 0. See troubleshooting below.
 
 ### 3. Start a fresh shell
@@ -168,6 +168,8 @@ agent-stack-doctor
 | **systemd** | Recent WSL supports systemd. Enable it in `/etc/wsl.conf` (`[boot]` then `systemd=true`) only if you need user services; it is not required for this repo. |
 | **GUI apps** | WSLg can run Linux GUI apps, but most are better installed on the Windows side. This repo installs no GUI apps on Linux anyway. |
 | **VS Code** | Install VS Code on Windows and use the "WSL" remote extension; it runs the editor server inside the distro and picks up your `~/.config` there. |
+| **Nerd Font glyphs** | `omp` and `yazi` render in Windows Terminal, so install the Linux cask and the font on Windows, then set the Windows Terminal profile font. See [nerd-fonts-wsl.md](nerd-fonts-wsl.md). |
+| **Brewfile** | WSL uses `brew/linux/dot_Brewfile-wsl.tmpl`, a superset of the base Linux Brewfile selected automatically by `scripts/run_10_homebrew`. |
 
 ## Troubleshooting
 
@@ -179,7 +181,7 @@ agent-stack-doctor
 | `mise: command not found` | You skipped the fresh shell. Run `exec bash`, then `mise install`. |
 | `brew` not found after bootstrap | Start a new shell so the `00-homebrew` module runs `brew shellenv`. |
 | Homebrew formulae you installed by hand disappeared | `brew bundle cleanup --force` removed them. Add them to `brew/linux/dot_Brewfile.tmpl`. |
-| `⚠ Playwright browser installation failed` during the Hermes step | Non-fatal; only Hermes browser tools are affected. Fix later with `cd ~/.hermes/hermes-agent && npx playwright install chromium`. |
+| `WARNING: Playwright browser installation failed` during the Hermes step | Non-fatal; only Hermes browser tools are affected. Fix later with `cd ~/.hermes/hermes-agent && npx playwright install chromium`. |
 | `go`/`node` resolve to Homebrew, not the pinned version | Start a new shell - mise activates last so its shims win. |
 | Everything is slow | You are probably working under `/mnt/c/`. Move the project into `~/`. |
 

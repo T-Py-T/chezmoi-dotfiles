@@ -53,10 +53,13 @@ on `PATH` in the shell that ran the bootstrap.
 | Detection | Brewfile |
 |---|---|
 | `DEVCONTAINER=1` or `/.dockerenv` exists | `brew/devcontainer/dot_Brewfile.tmpl` |
-| `uname -s` = `Linux` (Atomic, WSL, any distro) | `brew/linux/dot_Brewfile.tmpl` |
+| `uname -s` = `Linux` and WSL detected (`/proc/version` or `$WSL_DISTRO_NAME`) | `brew/linux/dot_Brewfile-wsl.tmpl` |
+| `uname -s` = `Linux` (Fedora Atomic, regular distros) | `brew/linux/dot_Brewfile.tmpl` |
 | `uname -s` = `Darwin` | `brew/macos/dot_Brewfile.tmpl` |
 
-There is intentionally one Linux Brewfile for all distros. Atomic-specific concerns (`rpm-ostree` packages, Quadlet units) live in the Fedora Atomic guide, not a separate Brewfile.
+The base Linux Brewfile covers Fedora Atomic and regular Linux hosts. WSL uses a superset Brewfile with additional terminal tools, agents, network utilities, and the Agave Nerd Font. Atomic-specific concerns (`rpm-ostree` packages, Quadlet units) live in the Fedora Atomic guide, not a separate Brewfile.
+
+The WSL font guide covers the required Linux-side font installation and the separate Windows Terminal font configuration: [Nerd Fonts on WSL](nerd-fonts-wsl.md).
 
 ## Conventions
 

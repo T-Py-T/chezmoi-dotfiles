@@ -47,7 +47,12 @@ brew update
 brewfile_path=""
 case "$(uname -s)" in
   Linux)
-    brewfile_path="${source_dir}/brew/linux/dot_Brewfile.tmpl"
+    # WSL gets the superset Brewfile; plain Linux hosts use the base one.
+    if grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null || [ -n "${WSL_DISTRO_NAME:-}" ]; then
+      brewfile_path="${source_dir}/brew/linux/dot_Brewfile-wsl.tmpl"
+    else
+      brewfile_path="${source_dir}/brew/linux/dot_Brewfile.tmpl"
+    fi
     ;;
   Darwin)
     brewfile_path="${source_dir}/brew/macos/dot_Brewfile.tmpl"

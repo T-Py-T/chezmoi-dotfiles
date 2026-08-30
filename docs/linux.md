@@ -37,6 +37,8 @@ sudo pacman -S --needed base-devel curl file git procps-ng
 
 That is all you install by hand. chezmoi, Homebrew, and mise come from the bootstrap.
 
+WSL is the intentional exception at the Brewfile-selection layer: `scripts/run_10_homebrew` detects WSL and selects `brew/linux/dot_Brewfile-wsl.tmpl`, which adds terminal tooling and the Agave Nerd Font. See [wsl.md](wsl.md) and [nerd-fonts-wsl.md](nerd-fonts-wsl.md) for the Windows-specific setup.
+
 ## Bootstrap
 
 ### 1. Install chezmoi
