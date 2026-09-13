@@ -15,20 +15,27 @@ on:
 jobs:
   nvim-health:
     name: checkhealth
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: install neovim
         run: |
           case "$(uname -m)" in
-            x86_64) archive="nvim-linux-x86_64" ;;
-            aarch64|arm64) archive="nvim-linux-arm64" ;;
+            x86_64)
+              archive="nvim-linux-x86_64"
+              checksum="bce0f56eda1f1b1db6eee8f4133d7a38813ea07933837dd1777411ca384c6875"
+              ;;
+            aarch64|arm64)
+              archive="nvim-linux-arm64"
+              checksum="1aa5ca085249580ae0f91eb14f27ec0919773ff2d99a163d03f3d6c21ac29725"
+              ;;
             *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
           esac
-          curl -fLO "https://github.com/neovim/neovim/releases/latest/download/${archive}.tar.gz"
+          curl -fLO "https://github.com/neovim/neovim/releases/download/v0.12.5/${archive}.tar.gz"
+          echo "${checksum}  ${archive}.tar.gz" | sha256sum --check --strict
           tar -xzf "${archive}.tar.gz" -C /tmp
           echo "/tmp/${archive}/bin" >> "$GITHUB_PATH"
 
@@ -48,12 +55,12 @@ jobs:
             fd-find
 
       - name: install node (for tree-sitter-cli)
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "22"
 
       - name: install tree-sitter-cli
-        run: npm install -g tree-sitter-cli
+        run: npm install -g tree-sitter-cli@0.27.0
 
       - name: copy nvim config
         run: |

@@ -12,22 +12,22 @@ on:
 jobs:
   pre-commit:
     name: lint and format checks
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: set up python (for pre-commit)
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
 
       - name: install pre-commit
-        run: pip install pre-commit
+        run: pip install pre-commit==4.6.2
 
       - name: cache pre-commit environments
-        uses: actions/cache@v5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/pre-commit
           key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
@@ -37,15 +37,35 @@ jobs:
 
   validate-mise:
     name: validate mise.toml
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: install mise
         run: |
-          curl -fsLS https://mise.run | sh
+          case "$(uname -m)" in
+            x86_64)
+              mise_arch="x64"
+              mise_sha256="04260a49d2cb7f46c91d3f90547f8486ba6c6c9e545b98e69b685cdcf0db8576"
+              ;;
+            aarch64|arm64)
+              mise_arch="arm64"
+              mise_sha256="7892401c3a3b8166e8be3a3bbd564f48b36946e580e031f2df94a4935edfd907"
+              ;;
+            *)
+              echo "Unsupported runner architecture: $(uname -m)" >&2
+              exit 1
+              ;;
+          esac
+          curl -fsSL \
+            "https://github.com/jdx/mise/releases/download/v2026.9.6/mise-v2026.9.6-linux-${mise_arch}" \
+            -o "$RUNNER_TEMP/mise"
+          echo "${mise_sha256}  $RUNNER_TEMP/mise" \
+            | sha256sum --check --strict
+          mkdir -p "$HOME/.local/bin"
+          install -m 0755 "$RUNNER_TEMP/mise" "$HOME/.local/bin/mise"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: validate mise.toml parses without error
@@ -53,15 +73,35 @@ jobs:
 
   validate-starship:
     name: validate starship.toml
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: install starship
         run: |
-          curl -sS https://starship.rs/install.sh | sh -s -- --yes
+          case "$(uname -m)" in
+            x86_64)
+              starship_target="x86_64-unknown-linux-musl"
+              starship_sha256="b7c232b0e8249d8e55a40beb79c5c43a7d370f3f9408bd215deb0170daeaadf3"
+              ;;
+            aarch64|arm64)
+              starship_target="aarch64-unknown-linux-musl"
+              starship_sha256="dc30189378d2f2e287384e8a692d3f95ad1df64cf0e8c36aa9201516028aed6b"
+              ;;
+            *)
+              echo "Unsupported runner architecture: $(uname -m)" >&2
+              exit 1
+              ;;
+          esac
+          curl -fsSL \
+            "https://github.com/starship/starship/releases/download/v1.26.0/starship-${starship_target}.tar.gz" \
+            -o "$RUNNER_TEMP/starship.tar.gz"
+          echo "${starship_sha256}  $RUNNER_TEMP/starship.tar.gz" \
+            | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/starship.tar.gz" -C "$RUNNER_TEMP" starship
+          sudo install -m 0755 "$RUNNER_TEMP/starship" /usr/local/bin/starship
           echo "/usr/local/bin" >> "$GITHUB_PATH"
 
       - name: validate starship config parses without error
