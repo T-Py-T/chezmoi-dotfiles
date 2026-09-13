@@ -7,7 +7,7 @@
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       # Validate TOML syntax (mise.toml, starship.toml)
       - id: check-toml
@@ -28,7 +28,7 @@ repos:
 
   # Shell script linting via shellcheck
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
+    rev: v0.11.0.1-1
     hooks:
       - id: shellcheck
         # Also lint chezmoi template scripts (they are shell with .tmpl suffix)
@@ -37,7 +37,7 @@ repos:
 
   # Lua formatting check for nvim config
   - repo: https://github.com/JohnnyMorganz/StyLua
-    rev: v2.0.2
+    rev: v2.5.2
     hooks:
       - id: stylua
         # Only check files we own - exclude legacy theprimeagen/ reference files
