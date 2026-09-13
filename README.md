@@ -1,124 +1,119 @@
-# dotfiles
+# Portable development environment
 
-My personal dotfiles, managed by [chezmoi](https://www.chezmoi.io/).
+My cross-platform shell and developer-tool configuration, managed with
+[chezmoi](https://www.chezmoi.io/). A single source tree configures macOS,
+Linux, WSL, Fedora Atomic, and development containers while keeping
+machine-specific and secret state out of Git.
 
-Targets macOS, Linux (incl. WSL and Fedora Atomic), and devcontainers from a single repo. The right Brewfile is picked automatically based on environment.
+The repository is for developers who want a repeatable workstation bootstrap
+without replacing the host operating system. It installs the appropriate tool
+set, pins language runtimes, applies shell and editor configuration, and checks
+that the resulting environment is usable.
 
-## Overview
+## What it manages
 
-One repo bootstraps a new machine to a working dev environment. It manages four layers:
+| Layer | Managed here |
+| --- | --- |
+| Shell | Zsh, Bash, aliases, Starship, tmux, and common environment setup |
+| Editor | Neovim configuration and a headless health check |
+| Tools | Platform-specific Homebrew bundles for CLI tools, apps, and extensions |
+| Runtimes | Python, Go, Rust, and Node versions pinned with `mise` |
+| Agent tooling | Checksum-pinned runtimes, a shared coordination skill, and non-secret diagnostics |
 
-- **Dotfiles** - zsh/bash, starship prompt, neovim, tmux, aliases, and `~/.config/*`, materialized into `~` by chezmoi.
-- **Tools** - ordinary CLI tools (and, on macOS, GUI casks + VS Code extensions) via Homebrew, from a per-OS Brewfile. The pinned agent-runtime exception is documented below.
-- **Runtimes** - python, go, rust, node pinned in `mise.toml` and identical on every OS.
-- **Agent coordination** - checksum-pinned agent runtimes, a shared skill, privacy defaults, and diagnostics across macOS, WSL, and Linux.
+Chezmoi renders `dot_*` and `dot_config/` into the home directory. The bootstrap
+scripts select the correct Brewfile for the detected platform, then install the
+portable agent tools under `~/.local`. Full application settings and all
+credentials remain outside this repository.
 
-The OS image itself stays stock (no custom image). Full, harness-specific AI
-settings remain in the separate `workspace-configs` repo; this repo owns only
-the portable runtime and coordination layer. See [Agent stack](docs/agent-stack.md)
-and [Runtime vs tool strategy](#runtime-vs-tool-strategy).
+## Platform guides
 
-## Getting started
+- [macOS](docs/macos.md)
+- [Linux](docs/linux.md)
+- [Windows Subsystem for Linux](docs/wsl.md)
+- [Fedora Atomic](docs/fedora-atomic.md)
+- [Development containers](docs/devcontainer.md)
 
-Full from-scratch walkthroughs, one per platform:
+## Quick start
 
-- **[macOS](docs/macos.md)** - Apple Silicon MacBook
-- **[Linux](docs/linux.md)** - Ubuntu/Debian, Fedora, Arch, cloud VMs, servers
-- **[WSL](docs/wsl.md)** - Windows Subsystem for Linux
-
-Advanced environments: [Fedora Atomic](docs/fedora-atomic.md) (immutable desktop), [Devcontainer](docs/devcontainer.md) (per-project containers).
-
-The short version, once your platform's prerequisites (from the guide above) are in place:
+Read the guide for your platform first. Once its prerequisites are installed:
 
 ```sh
 mkdir -p ~/.local/bin
-sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin   # chezmoi binary
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin
 export PATH="$HOME/.local/bin:$PATH"
-chezmoi init --apply T-Py-T/chezmoi-dotfiles              # Homebrew + dotfiles + brew bundle + agent runtimes
-exec bash                                                 # pick up brew/mise on PATH
-mise install                                              # pinned python/go/rust/node
-```
-
-Use the full `owner/repo`: the bare-username shorthand (`--apply T-Py-T`) resolves to
-a different, private repo. `exec bash` before `mise install` is required - mise arrives
-with `brew bundle`, so it is not on `PATH` in the bootstrap shell.
-
-Then open a new shell and run `agent-stack-doctor`. See your platform guide for
-verification and troubleshooting.
-
-Update an existing machine:
-
-```sh
-chezmoi update && brew upgrade && mise upgrade
+chezmoi init --apply T-Py-T/chezmoi-dotfiles
+exec "$SHELL" -l
+mise install
 agent-stack-doctor
 ```
 
-## Repo layout
+Use the full `T-Py-T/chezmoi-dotfiles` name. The bare account name resolves to
+a different repository. Review pending changes before applying them to an
+existing workstation:
 
-| Path | What it is |
-|---|---|
-| `dot_*` / `dot_config/` | Files that chezmoi materializes into `~` |
-| `dot_agents/skills/` | Portable skills discovered by Codex, Pi, OMP, and Hermes |
-| `dot_local/bin/` | Small, portable coordination and diagnostic helpers |
-| `brew/{macos,linux,devcontainer}/` | Per-environment Brewfiles |
-| `mise.toml` | Pinned language runtimes (python, go, rust, node) |
-| `scripts/` | chezmoi `run_once_*` and `run_*` scripts |
-| `docs/` | Per-OS setup guides, plus findings and reference |
-| `.chezmoiignore` | Keeps repo infra (README, `docs`, `brew/`, helper scripts) out of `~` |
+```sh
+chezmoi update --dry-run --verbose
+chezmoi update
+```
 
-## Runtime vs tool strategy
+## Update a configured machine
 
-Read this before changing anything about package management. The goal is simple:
-**install the same tools no matter the operating system.** These decisions are
-settled; do not relitigate them without a concrete reason.
+```sh
+chezmoi update
+brew upgrade
+mise upgrade
+agent-stack-doctor
+```
 
-The split:
+The dotfiles intentionally divide ownership between tools: Homebrew installs
+ordinary applications, `mise` selects language runtimes, and the agent installer
+owns its checksum-pinned binaries. The exact PATH and update rules are documented
+in [Runtime and tool ownership](docs/runtime-tooling.md).
 
-- **mise owns language runtimes** (python, go, rust, node). Versions are pinned in
-  `mise.toml`, so every OS gets identical runtimes. `mise.toml` deploys to `~`
-  (global) so runtimes resolve in every directory.
-- **Homebrew owns ordinary tools** (CLI tools and GUI casks), via the per-OS
-  Brewfile under `brew/<os>/`. Homebrew may pull `go`/`node` in as transitive
-  dependencies; that is fine because of the PATH rule below.
-- **The agent runtime installer owns Beads, OMP, Pi, and Hermes.** Those projects
-  move faster than their package-manager formulae, and Hermes explicitly
-  supports its own installer. Versions and release checksums are centralized in
-  `scripts/run_after_20_agent_tools.tmpl`; symlinks live in `~/.local/bin`.
+## Validate a change
 
-Non-negotiable mechanics:
+Run the repository checks before applying a change to a workstation:
 
-- **mise activates LAST** in `dot_zshrc` / `dot_bashrc`, after the Homebrew
-  shellenv module. This makes mise's runtime shims win over any brew `go`/`node`
-  on PATH, in interactive shells and non-interactive scripts alike. Do NOT move
-  `mise activate` earlier.
-- **`go install` output goes to `~/go/bin`, never mise's GOROOT.** mise sets
-  `GOBIN` to the go version's `bin/` by default; go-installed tools landing there
-  can corrupt the pinned go binary. The shell rc overrides `GOBIN="$HOME/go/bin"`
-  after activation and puts `~/go/bin` on PATH (this is where `gopls` lives).
+```sh
+pre-commit run --all-files --show-diff-on-failure
+```
 
-Settled decisions (an agent "fixing" any of these is creating a regression):
+For Neovim changes, also run:
 
-- **mise itself is installed via Homebrew** (it is in every Brewfile). Brew manages
-  mise's updates. Do not remove it or replace it with a curl bootstrap.
-- **No `pyenv`, no brew `python@X`.** mise owns python. Those were removed
-  deliberately.
-- **LSP servers (`pyright`) and `gopls` come from Homebrew / `go install`,** not
-  mise. mise is runtimes only.
-- **Keep `.chezmoiignore`.** Without it, `chezmoi apply` dumps `README.md`,
-  `docs/`, `brew/`, and helper scripts into `~`.
-- **Third-party taps carry `trusted: true`** in the Brewfiles. Homebrew refuses
-  to load casks/formulae from untrusted taps, which aborts `brew bundle`.
-- **Do not add Beads, OMP, Pi, or Hermes to a Brewfile.** That would create two
-  update authorities and can silently select the wrong version on PATH.
-- **Do not track agent credentials, sessions, databases, or memory stores.** The
-  shared `~/.agents/skills` tree contains instructions only. Stateful and secret
-  files remain local to each harness.
-- **`adobe-acrobat-reader` is intentionally absent.** Adobe's installer rejects
-  Homebrew-managed upgrades and breaks `brew bundle`; install Reader manually.
+```sh
+bash scripts/check-nvim-health.sh
+```
 
-## Inspirations
+Pull requests run configuration validation and the Neovim health check. The
+workflows do not run on pushes, schedules, or manual dispatches.
 
-- [Mischa van den Burg](https://mischavandenburg.com/) — Fedora Atomic + chezmoi + Podman Quadlet workflow
-- [mloberg](https://github.com/mloberg/dotfiles)
-- [Dreams of Autonomy](https://www.youtube.com/watch?v=9U8LCjuQzdc)
-- [Josean Martinez](https://www.youtube.com/@joseanmartinez)
+## Repository layout
+
+| Path | Purpose |
+| --- | --- |
+| `dot_*`, `dot_config/` | Files materialized into the home directory |
+| `brew/` | Brewfiles for macOS, Linux, and development containers |
+| `mise.toml` | Pinned language runtimes |
+| `scripts/` | Bootstrap, update, and validation helpers |
+| `dot_local/bin/` | Portable diagnostics and coordination commands |
+| `dot_agents/skills/` | Shared, non-secret agent instructions |
+| `docs/` | Platform setup and design notes |
+| `.chezmoiignore` | Files that must remain in the source repository only |
+
+## Privacy and safety
+
+This repository does not track tokens, sessions, SSH keys, agent databases,
+caches, or memory stores. Review the rendered diff from `chezmoi update
+--dry-run --verbose` before applying changes to a machine with local
+customizations.
+
+## License and inspiration
+
+Repository-specific configuration and documentation are available under the
+[MIT License](LICENSE).
+
+The structure draws inspiration from
+[Mischa van den Burg](https://mischavandenburg.com/),
+[mloberg/dotfiles](https://github.com/mloberg/dotfiles),
+[Dreams of Autonomy](https://www.youtube.com/watch?v=9U8LCjuQzdc), and
+[Josean Martinez](https://www.youtube.com/@joseanmartinez).
