@@ -1,5 +1,9 @@
 # Portable development environment
 
+[![Validate](https://github.com/T-Py-T/chezmoi-dotfiles/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/T-Py-T/chezmoi-dotfiles/actions/workflows/validate.yml)
+[![Neovim Health](https://github.com/T-Py-T/chezmoi-dotfiles/actions/workflows/nvim-health.yml/badge.svg?branch=main)](https://github.com/T-Py-T/chezmoi-dotfiles/actions/workflows/nvim-health.yml)
+
+
 My cross-platform shell and developer-tool configuration, managed with
 [chezmoi](https://www.chezmoi.io/). A single source tree configures macOS,
 Linux, WSL, Fedora Atomic, and development containers while keeping
