@@ -3,16 +3,16 @@
 [![Validate](https://github.com/T-Py-T/chezmoi-dotfiles/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/T-Py-T/chezmoi-dotfiles/actions/workflows/validate.yml)
 [![Neovim Health](https://github.com/T-Py-T/chezmoi-dotfiles/actions/workflows/nvim-health.yml/badge.svg?branch=main)](https://github.com/T-Py-T/chezmoi-dotfiles/actions/workflows/nvim-health.yml)
 
+Cross-platform shell and developer-tool configuration managed with
+[chezmoi](https://www.chezmoi.io/). One source tree configures macOS, Linux,
+WSL, Fedora Atomic, and development containers while keeping machine-specific
+and secret state out of Git. Use it to bootstrap a repeatable workstation
+(tool installs, pinned runtimes, shell and editor config, and sanity checks)
+without replacing the host OS.
 
-My cross-platform shell and developer-tool configuration, managed with
-[chezmoi](https://www.chezmoi.io/). A single source tree configures macOS,
-Linux, WSL, Fedora Atomic, and development containers while keeping
-machine-specific and secret state out of Git.
-
-The repository is for developers who want a repeatable workstation bootstrap
-without replacing the host operating system. It installs the appropriate tool
-set, pins language runtimes, applies shell and editor configuration, and checks
-that the resulting environment is usable.
+**Topics:** chezmoi, dotfiles, Zsh, Neovim, Homebrew, mise, tmux, cross-platform
+bootstrap, pre-commit CI. **Reviewers:** [hireability snapshot](docs/HIREABILITY.md)
+· [Security policy](SECURITY.md) · [MIT License](LICENSE)
 
 ## What it manages
 
@@ -109,7 +109,8 @@ workflows do not run on pushes, schedules, or manual dispatches.
 This repository does not track tokens, sessions, SSH keys, agent databases,
 caches, or memory stores. Review the rendered diff from `chezmoi update
 --dry-run --verbose` before applying changes to a machine with local
-customizations.
+customizations. Report security issues per [SECURITY.md](SECURITY.md), not via
+public issues.
 
 ## License and inspiration
 

@@ -17,10 +17,11 @@ Pick the one for your machine:
 
 ## Reference
 
+- [Hireability snapshot](HIREABILITY.md) - what/why/how for reviewers; tip-cite and topic index.
 - [Agent stack](agent-stack.md) - verified coordination architecture, pinned runtimes, privacy defaults, multi-host limits, and upgrade procedure.
 - [findings/git-commit-trailers.md](findings/git-commit-trailers.md) - if `Co-authored-by` lines appear without you typing them.
 - [findings/neovim-migration.md](findings/neovim-migration.md) - the neovim vim.pack migration notes.
-- [Runtime vs tool strategy](../README.md#runtime-vs-tool-strategy) - how mise (runtimes) and Homebrew (tools) divide responsibilities. Read before changing package management.
+- [Runtime and tool ownership](runtime-tooling.md) - how mise (runtimes) and Homebrew (tools) divide responsibilities. Read before changing package management.
 
 ## The bootstrap flow (all platforms)
 
