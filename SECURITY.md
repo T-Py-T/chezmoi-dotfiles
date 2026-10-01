@@ -1,5 +1,10 @@
 # Security policy
 
+Repository bootstrap, layout, and validation are documented in
+[README.md](README.md). To propose non-security changes, see
+[CONTRIBUTING.md](CONTRIBUTING.md). Repository-owned content is under the
+[MIT License](LICENSE).
+
 ## Supported code
 
 The current `main` branch is the only supported version. This repository is a
@@ -43,3 +48,10 @@ Pre-commit checks, Neovim health validation, and `chezmoi update --dry-run` help
 verify the public configuration in this repository. Local checks do not certify
 a workstation, host operating system, or rendered home-directory state as
 secure.
+
+## Related documentation
+
+- [README.md](README.md) — privacy, validation, and repository layout
+- [CONTRIBUTING.md](CONTRIBUTING.md) — pull requests and local checks
+- [docs/HIREABILITY.md](docs/HIREABILITY.md) — reviewer orientation and topics
+- [LICENSE](LICENSE) — MIT terms

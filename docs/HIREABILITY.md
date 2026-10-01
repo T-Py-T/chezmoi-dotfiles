@@ -24,6 +24,7 @@ development containers.
 1. Read [README.md](../README.md) — managed layers, [repository layout](../README.md#repository-layout), and [quick start](../README.md#quick-start).
 2. Skim recent PR workflow runs: [Validate](https://github.com/T-Py-T/chezmoi-dotfiles/actions/workflows/validate.yml) and [Neovim Health](https://github.com/T-Py-T/chezmoi-dotfiles/actions/workflows/nvim-health.yml) (gates run on pull requests only).
 3. Review [SECURITY.md](../SECURITY.md) for supported versions and private reporting.
+4. See [CONTRIBUTING.md](../CONTRIBUTING.md) for pull-request checks and scope.
 
 ## Topics
 
@@ -38,6 +39,6 @@ Repository-owned configuration and documentation:
 
 ## Tip-cite
 
-Default-branch tip prefix: `2c7107d` (`main`). This pull request is pending
+Default-branch tip prefix: `c14963b8` (`main`). This pull request is pending
 Steward resolve against that tip. Tip citation only — not READY, not a score or
 bake-off claim, and not AUTH unpark.

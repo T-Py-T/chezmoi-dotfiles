@@ -12,7 +12,8 @@ without replacing the host OS.
 
 **Topics:** chezmoi, dotfiles, Zsh, Neovim, Homebrew, mise, tmux, cross-platform
 bootstrap, pre-commit CI. **Reviewers:** [hireability snapshot](docs/HIREABILITY.md)
-· [Security policy](SECURITY.md) · [MIT License](LICENSE)
+· [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md)
+· [MIT License](LICENSE)
 
 ## What it manages
 

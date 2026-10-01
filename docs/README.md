@@ -18,6 +18,8 @@ Pick the one for your machine:
 ## Reference
 
 - [Hireability snapshot](HIREABILITY.md) - what/why/how for reviewers; tip-cite and topic index.
+- [SECURITY.md](../SECURITY.md) - supported versions, private vulnerability reporting, and repository boundary.
+- [CONTRIBUTING.md](../CONTRIBUTING.md) - pull requests, local validation, and security reporting pointer.
 - [Agent stack](agent-stack.md) - verified coordination architecture, pinned runtimes, privacy defaults, multi-host limits, and upgrade procedure.
 - [findings/git-commit-trailers.md](findings/git-commit-trailers.md) - if `Co-authored-by` lines appear without you typing them.
 - [findings/neovim-migration.md](findings/neovim-migration.md) - the neovim vim.pack migration notes.
