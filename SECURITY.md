@@ -53,5 +53,4 @@ secure.
 
 - [README.md](README.md) — privacy, validation, and repository layout
 - [CONTRIBUTING.md](CONTRIBUTING.md) — pull requests and local checks
-- [docs/HIREABILITY.md](docs/HIREABILITY.md) — reviewer orientation and topics
 - [LICENSE](LICENSE) — MIT terms

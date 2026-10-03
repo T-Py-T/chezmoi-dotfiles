@@ -1,6 +1,6 @@
 # Steward tip-cite: cite the default-branch tip as an 8-char prefix + PR# (example:
 # a56a2fad#275). Tip citation only — not READY, not a score or bake-off claim, and
-# not AUTH unpark. Human pull requests: docs/HIREABILITY.md and CONTRIBUTING.md.
+# not AUTH unpark. Human pull requests: CONTRIBUTING.md.
 
 version: 2
 updates:
