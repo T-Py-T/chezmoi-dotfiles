@@ -11,8 +11,7 @@ and secret state out of Git. Use it to bootstrap a repeatable workstation
 without replacing the host OS.
 
 **Topics:** chezmoi, dotfiles, Zsh, Neovim, Homebrew, mise, tmux, cross-platform
-bootstrap, pre-commit CI. **Reviewers:** [hireability snapshot](docs/HIREABILITY.md)
-· [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md)
+bootstrap, pre-commit CI. **Reviewers:** [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md)
 · [MIT License](LICENSE)
 
 ## What it manages
