@@ -1,45 +1,59 @@
-# Portable development environment
+# chezmoi-dotfiles
 
 [![Validate](https://github.com/T-Py-T/chezmoi-dotfiles/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/T-Py-T/chezmoi-dotfiles/actions/workflows/validate.yml)
 [![Neovim Health](https://github.com/T-Py-T/chezmoi-dotfiles/actions/workflows/nvim-health.yml/badge.svg?branch=main)](https://github.com/T-Py-T/chezmoi-dotfiles/actions/workflows/nvim-health.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Cross-platform shell and developer-tool configuration managed with
-[chezmoi](https://www.chezmoi.io/). One source tree configures macOS, Linux,
-WSL, Fedora Atomic, and development containers while keeping machine-specific
-and secret state out of Git. Use it to bootstrap a repeatable workstation
-(tool installs, pinned runtimes, shell and editor config, and sanity checks)
-without replacing the host OS.
+**One command from a fresh machine to a familiar workstation, on macOS, Linux,
+WSL, Fedora Atomic and dev containers.**
 
-**Topics:** chezmoi, dotfiles, Zsh, Neovim, Homebrew, mise, tmux, cross-platform
-bootstrap, pre-commit CI. **Reviewers:** [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md)
-· [MIT License](LICENSE)
+A [chezmoi](https://www.chezmoi.io/) source tree for Zsh, Bash, Starship,
+tmux and Neovim, plus platform Brewfiles and pinned language runtimes.
+Machine-specific state and every secret stay out of Git, and the host OS
+stays yours: this repo configures your workstation without replacing the OS.
 
-## What it manages
+[Quick start](#quick-start) ·
+[Preview safely](#preview-before-you-apply) ·
+[What you get](#what-you-get) ·
+[Platform guides](#platform-guides) ·
+[Contributing](#contributing)
+
+## Why use it
+
+- **One source tree, five platforms.** The bootstrap script detects the
+  platform and picks the matching Brewfile (`brew/macos`, `brew/linux` or
+  `brew/devcontainer`).
+- **Reproducible runtimes.** `mise` pins Python 3.14.3, Go 1.25.7,
+  Rust 1.93.0 and Node 22.12.0.
+- **Clear ownership.** Homebrew installs applications, `mise` owns language
+  runtimes, and the agent-tool installer owns its checksum-pinned binaries.
+  See [Runtime and tool ownership](docs/runtime-tooling.md).
+- **Checked on every pull request.** pre-commit (TOML/JSON/YAML, ShellCheck,
+  StyLua), `mise config ls`, `starship explain`, and a headless Neovim health
+  check.
+- **Secrets stay out.** No tokens, sessions, SSH keys, agent databases,
+  caches or memory stores are tracked.
+
+## What you get
 
 | Layer | Managed here |
 | --- | --- |
-| Shell | Zsh, Bash, aliases, Starship, tmux, and common environment setup |
-| Editor | Neovim configuration and a headless health check |
-| Tools | Platform-specific Homebrew bundles for CLI tools, apps, and extensions |
-| Runtimes | Python, Go, Rust, and Node versions pinned with `mise` |
-| Agent tooling | Checksum-pinned runtimes, a shared coordination skill, and non-secret diagnostics |
+| Shell | Zsh and Bash, shared aliases, Starship prompt, tmux, fzf, zoxide, eza, direnv |
+| Editor | Neovim config with a lockfile and a headless health check |
+| Tools | Per-platform Homebrew bundles for CLI tools, apps and extensions |
+| Runtimes | Python, Go, Rust and Node pinned with `mise` |
+| Agent tooling | Checksum-pinned CLI tools under `~/.local`, a shared coordination skill, and `agent-stack-doctor` for non-secret diagnostics |
 
-Chezmoi renders `dot_*` and `dot_config/` into the home directory. The bootstrap
-scripts select the correct Brewfile for the detected platform, then install the
-portable agent tools under `~/.local`. Full application settings and all
-credentials remain outside this repository.
-
-## Platform guides
-
-- [macOS](docs/macos.md)
-- [Linux](docs/linux.md)
-- [Windows Subsystem for Linux](docs/wsl.md)
-- [Fedora Atomic](docs/fedora-atomic.md)
-- [Development containers](docs/devcontainer.md)
+There are no screenshots in the repository. The preview below shows exactly
+what chezmoi would write.
 
 ## Quick start
 
-Read the guide for your platform first. Once its prerequisites are installed:
+> Not run as part of this README update. It writes to your home directory, so
+> [preview it first](#preview-before-you-apply).
+
+Read the [guide for your platform](#platform-guides), install its
+prerequisites, then:
 
 ```sh
 mkdir -p ~/.local/bin
@@ -52,8 +66,34 @@ agent-stack-doctor
 ```
 
 Use the full `T-Py-T/chezmoi-dotfiles` name. The bare account name resolves to
-a different repository. Review pending changes before applying them to an
-existing workstation:
+a different repository.
+
+## Preview before you apply
+
+chezmoi can render everything into a throwaway directory, so you can inspect
+the result without touching your real home directory or chezmoi config:
+
+```sh
+git clone https://github.com/T-Py-T/chezmoi-dotfiles.git
+cd chezmoi-dotfiles
+tmp="$(mktemp -d)"
+cz() {
+  chezmoi --source "$PWD" --destination "$tmp/home" \
+    --config "$tmp/chezmoi.toml" --persistent-state "$tmp/state.boltdb" \
+    --cache "$tmp/cache" "$@"
+}
+cz managed --include=files          # list every file it would write
+cz apply --dry-run --verbose --exclude=scripts
+```
+
+Run with chezmoi 2.71.0 on macOS, this listed 33 managed files, including
+`.zshrc`, `.config/nvim/init.lua`, `.config/starship.toml`, `.tmux.conf` and
+`.local/bin/agent-stack-doctor`. The dry run exited cleanly and left the
+temporary destination empty. `--exclude=scripts` skips the four bootstrap
+scripts (Homebrew bundle, agent tools, pre-commit hooks, first-run setup),
+because those install software.
+
+On a machine that's already set up, review incoming changes the same way:
 
 ```sh
 chezmoi update --dry-run --verbose
@@ -69,10 +109,16 @@ mise upgrade
 agent-stack-doctor
 ```
 
-The dotfiles intentionally divide ownership between tools: Homebrew installs
-ordinary applications, `mise` selects language runtimes, and the agent installer
-owns its checksum-pinned binaries. The exact PATH and update rules are documented
-in [Runtime and tool ownership](docs/runtime-tooling.md).
+## Platform guides
+
+- [macOS](docs/macos.md)
+- [Linux](docs/linux.md)
+- [Windows Subsystem for Linux](docs/wsl.md)
+- [Fedora Atomic](docs/fedora-atomic.md)
+- [Development containers](docs/devcontainer.md)
+
+Design notes: [Runtime and tool ownership](docs/runtime-tooling.md) and
+[Agent tool stack](docs/agent-stack.md).
 
 ## Validate a change
 
@@ -89,28 +135,40 @@ bash scripts/check-nvim-health.sh
 ```
 
 Pull requests run configuration validation and the Neovim health check. The
-workflows do not run on pushes, schedules, or manual dispatches.
+workflows don't run on pushes, schedules or manual dispatches.
 
 ## Repository layout
 
 | Path | Purpose |
 | --- | --- |
 | `dot_*`, `dot_config/` | Files materialized into the home directory |
-| `brew/` | Brewfiles for macOS, Linux, and development containers |
+| `brew/` | Brewfiles for macOS, Linux and development containers |
 | `mise.toml` | Pinned language runtimes |
-| `scripts/` | Bootstrap, update, and validation helpers |
+| `scripts/` | Bootstrap, update and validation helpers |
 | `dot_local/bin/` | Portable diagnostics and coordination commands |
 | `dot_agents/skills/` | Shared, non-secret agent instructions |
 | `docs/` | Platform setup and design notes |
-| `.chezmoiignore` | Files that must remain in the source repository only |
+| `.chezmoiignore` | Files that stay in the source repository only |
+
+Known rough edge: `.chezmoiignore` doesn't currently exclude
+`CONTRIBUTING.md`, `LICENSE` or `SECURITY.md`, so the preview shows them as
+home-directory targets.
 
 ## Privacy and safety
 
-This repository does not track tokens, sessions, SSH keys, agent databases,
-caches, or memory stores. Review the rendered diff from `chezmoi update
---dry-run --verbose` before applying changes to a machine with local
-customizations. Report security issues per [SECURITY.md](SECURITY.md), not via
-public issues.
+This repository doesn't track tokens, sessions, SSH keys, agent databases,
+caches or memory stores. Full application settings and all credentials stay on
+the machine. Review the rendered diff from `chezmoi update --dry-run --verbose`
+before applying changes to a machine with local customizations. Report
+security issues as described in [SECURITY.md](SECURITY.md), not in public
+issues.
+
+## Contributing
+
+Fixes and platform improvements are welcome. See
+[CONTRIBUTING.md](CONTRIBUTING.md), keep secrets and machine-specific values
+out of commits, and run the checks in [Validate a change](#validate-a-change)
+before opening a pull request.
 
 ## License and inspiration
 
