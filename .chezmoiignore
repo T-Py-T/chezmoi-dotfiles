@@ -5,5 +5,7 @@ README.md
 docs
 brew
 scripts/check-nvim-health.sh
+scripts/ci-install-stylua.sh
 scripts/devpod-up.sh
 scripts/merge-hermes-config.py
+scripts/test_merge_hermes_config.py
