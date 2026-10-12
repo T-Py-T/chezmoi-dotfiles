@@ -38,7 +38,9 @@ echo ""
 
 # Use awk to count matches - always exits 0, safe with set -o pipefail.
 # grep -c exits 1 on 0 matches which trips set -e in a pipeline.
-error_count=$(LC_ALL=C strings "$HEALTH_OUTPUT" | awk '/ERROR/{c++} END{print c+0}')
+# Match checkhealth status columns (whitespace before ERROR), not paths like /foo/ERROR/bar.
+error_awk='/[[:space:]]ERROR([[:space:]]|\|)/'
+error_count=$(LC_ALL=C strings "$HEALTH_OUTPUT" | awk "$error_awk"'{c++} END{print c+0}')
 warn_count=$(LC_ALL=C strings "$HEALTH_OUTPUT" | awk '/WARNING/{c++} END{print c+0}')
 ok_count=$(LC_ALL=C strings "$HEALTH_OUTPUT" | awk '/ OK /{c++} END{print c+0}')
 
@@ -52,7 +54,7 @@ if [ "$error_count" -gt 0 ]; then
   echo "FAIL: $error_count ERROR line(s) found in nvim health check."
   echo ""
   echo "Failing lines:"
-  LC_ALL=C strings "$HEALTH_OUTPUT" | awk '/ERROR/{print}'
+  LC_ALL=C strings "$HEALTH_OUTPUT" | awk "$error_awk"'{print}'
   exit 1
 fi
 

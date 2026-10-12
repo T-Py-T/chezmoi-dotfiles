@@ -14,18 +14,22 @@ import yaml
 SHARED_SKILLS_DIR = "~/.agents/skills"
 
 
+def _string_dir_items(items: list[Any]) -> list[str]:
+    return [str(item) for item in items if item is not None]
+
+
 def _external_dirs(value: Any) -> list[str]:
     if value is None:
         return []
     if isinstance(value, list):
-        return [str(item) for item in value]
+        return _string_dir_items(value)
     if isinstance(value, str):
         try:
             decoded = json.loads(value)
         except json.JSONDecodeError:
             return [value]
         if isinstance(decoded, list):
-            return [str(item) for item in decoded]
+            return _string_dir_items(decoded)
         return [value]
     raise TypeError("skills.external_dirs must be a list or string")
 
