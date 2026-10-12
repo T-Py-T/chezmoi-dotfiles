@@ -2,4 +2,6 @@
 # Keeps OS junk and local tool binaries out of the repo.
 # Does not ignore tracked dotfiles or scripts.
 .DS_Store
+__pycache__/
+*.py[cod]
 bin/

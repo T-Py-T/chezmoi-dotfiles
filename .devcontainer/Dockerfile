@@ -43,8 +43,8 @@ RUN curl -fsSL \
   && install -m 0755 /tmp/mise /usr/local/bin/mise \
   && rm /tmp/mise
 
-ARG CHEZMOI_VERSION=2.72.1
-ARG CHEZMOI_SHA256=75508ef41216b6d64f3145986b751729d7f92d09c6bad77d51cf2895ab35a508
+ARG CHEZMOI_VERSION=2.73.1
+ARG CHEZMOI_SHA256=e60275b27f505ae2086bfb87b144eacf7377a89803120f6bd933d1852a93b0c6
 RUN curl -fsSL \
     "https://github.com/twpayne/chezmoi/releases/download/v${CHEZMOI_VERSION}/chezmoi_${CHEZMOI_VERSION}_linux_arm64.tar.gz" \
     -o /tmp/chezmoi.tar.gz \
