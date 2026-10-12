@@ -1,8 +1,12 @@
 # dot_config/shell_aliases
 # Shared aliases for bash and zsh.
 
-# ls aliases
-alias ls='ls --color=auto'
+# ls aliases (prefer eza when installed via Homebrew; see dot_config/zsh/eza-ls.zsh)
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza --icons=auto'
+else
+  alias ls='ls --color=auto'
+fi
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
