@@ -69,6 +69,16 @@ verify_sha256() {
   fi
 }
 
+# grep -F on a bare version string matches longer releases (1.1.2 matches 1.1.20).
+pinned_version_matches() {
+  local expected="$1"
+  local output="$2"
+  local pattern
+
+  pattern="$(printf '%s' "$expected" | sed 's/[.]/\\./g')"
+  printf '%s\n' "$output" | grep -Eq "${pattern}([^0-9]|$)"
+}
+
 link_tool() {
   local name="$1"
   local target="$2"
@@ -139,7 +149,8 @@ hermes_profile_marker="$tools_root/hermes/.skip-profile"
 # and deliberately remains a separate, explicit human decision.
 beads_dir="$tools_root/beads/$beads_version"
 beads_bin="$beads_dir/bd"
-if [ ! -x "$beads_bin" ]; then
+if [ ! -x "$beads_bin" ] || ! pinned_version_matches "$beads_version" "$("$beads_bin" --version 2>&1)"; then
+  rm -rf -- "$beads_dir"
   mkdir -p "$beads_dir" "$temp_dir/beads"
   beads_archive="$temp_dir/beads.tar.gz"
   download "https://github.com/gastownhall/beads/releases/download/v${beads_version}/beads_${beads_version}_${platform}_${beads_arch}.tar.gz" "$beads_archive"
@@ -147,30 +158,36 @@ if [ ! -x "$beads_bin" ]; then
   tar -xzf "$beads_archive" -C "$temp_dir/beads"
   install -m 0755 "$temp_dir/beads/bd" "$beads_bin"
 fi
-"$beads_bin" --version | grep -F "$beads_version" >/dev/null
+if ! pinned_version_matches "$beads_version" "$("$beads_bin" --version 2>&1)"; then
+  echo "Beads version mismatch after install: expected $beads_version" >&2
+  exit 1
+fi
 BD_DISABLE_METRICS=1 "$beads_bin" metrics off >/dev/null
 link_tool bd "$beads_bin"
 
 # OMP: standalone release binary, pinned identically on every supported host.
 omp_dir="$tools_root/omp/$omp_version"
 omp_bin="$omp_dir/omp"
-if [ ! -x "$omp_bin" ]; then
+if [ ! -x "$omp_bin" ] || ! pinned_version_matches "$omp_version" "$("$omp_bin" --version 2>&1)"; then
+  rm -rf -- "$omp_dir"
   mkdir -p "$omp_dir"
   omp_download="$temp_dir/omp"
   download "https://github.com/can1357/oh-my-pi/releases/download/v${omp_version}/omp-${platform}-${asset_arch}" "$omp_download"
   verify_sha256 "$omp_sha256" "$omp_download"
   install -m 0755 "$omp_download" "$omp_bin"
 fi
-"$omp_bin" --version | grep -F "$omp_version" >/dev/null
+if ! pinned_version_matches "$omp_version" "$("$omp_bin" --version 2>&1)"; then
+  echo "OMP version mismatch after install: expected $omp_version" >&2
+  exit 1
+fi
 link_tool omp "$omp_bin"
 
 # Pi ships support assets beside its executable, so retain the whole directory.
 pi_dir="$tools_root/pi/$pi_version"
 pi_bin="$pi_dir/pi"
-if [ ! -x "$pi_bin" ]; then
+if [ ! -x "$pi_bin" ] || ! pinned_version_matches "$pi_version" "$("$pi_bin" --version 2>&1)"; then
   if [ -e "$pi_dir" ]; then
-    echo "Refusing to overwrite incomplete Pi directory: $pi_dir" >&2
-    exit 1
+    rm -rf -- "$pi_dir"
   fi
   mkdir -p "$(dirname "$pi_dir")" "$temp_dir/pi"
   pi_archive="$temp_dir/pi.tar.gz"
@@ -183,7 +200,10 @@ if [ ! -x "$pi_bin" ]; then
   fi
   mv "$temp_dir/pi/pi" "$pi_dir"
 fi
-"$pi_bin" --version | grep -F "$pi_version" >/dev/null
+if ! pinned_version_matches "$pi_version" "$("$pi_bin" --version 2>&1)"; then
+  echo "Pi version mismatch after install: expected $pi_version" >&2
+  exit 1
+fi
 link_tool pi "$pi_bin"
 
 # Hermes upstream supports its own git/venv installer, not Homebrew or pip. A
@@ -233,8 +253,14 @@ else
         --hermes-home "$hermes_home"
   fi
 
-  "$hermes_wrapper" --version | grep -F "v${hermes_version}" >/dev/null
-  "$hermes_wrapper" --version | grep -F "$hermes_release" >/dev/null
+  if ! pinned_version_matches "v${hermes_version}" "$("$hermes_wrapper" --version 2>&1)"; then
+    echo "Hermes version mismatch after install: expected v${hermes_version}" >&2
+    exit 1
+  fi
+  if ! pinned_version_matches "$hermes_release" "$("$hermes_wrapper" --version 2>&1)"; then
+    echo "Hermes release mismatch after install: expected $hermes_release" >&2
+    exit 1
+  fi
 
   hermes_python="$hermes_install_dir/venv/bin/python"
   merge_helper="$source_dir/scripts/merge-hermes-config.py"
