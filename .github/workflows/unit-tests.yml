@@ -1,0 +1,53 @@
+# Runs focused unit tests for shell helpers and Python merge logic.
+# Complements validate.yml (pre-commit) and nvim-health.yml (full nvim boot).
+
+name: unit tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
+
+jobs:
+  unit-tests:
+    name: python and bats
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: set up python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: install test dependencies
+        run: |
+          pip install --disable-pip-version-check pyyaml==6.0.2
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends bats
+
+      - name: install chezmoi (template render checks)
+        run: |
+          case "$(uname -m)" in
+            x86_64)
+              arch="amd64"
+              chezmoi_sha256="bbfa7061da039a1e1da5ced5bf58b4d37ad425cf13d8c14ac684dd30b280a78f"
+              ;;
+            aarch64|arm64)
+              arch="arm64"
+              chezmoi_sha256="d0587bab3bcf26924ae73c8a5685f4fc10fcc3c822b222ada999d0e152675450"
+              ;;
+            *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+          esac
+          url="https://github.com/twpayne/chezmoi/releases/download/v2.65.0/chezmoi_2.65.0_linux_${arch}.tar.gz"
+          curl -fsSL "$url" -o "$RUNNER_TEMP/chezmoi.tar.gz"
+          echo "${chezmoi_sha256}  $RUNNER_TEMP/chezmoi.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/chezmoi.tar.gz" -C "$RUNNER_TEMP" chezmoi
+          sudo install -m 0755 "$RUNNER_TEMP/chezmoi" /usr/local/bin/chezmoi
+          chezmoi --version
+
+      - name: run unit tests
+        run: bash tests/run-all.sh

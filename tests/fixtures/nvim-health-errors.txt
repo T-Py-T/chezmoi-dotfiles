@@ -1,0 +1,4 @@
+nvim: health#check
+==============================================================================
+plugin.foo:                                                                ERROR No binary
+plugin.bar:                                                                OK
