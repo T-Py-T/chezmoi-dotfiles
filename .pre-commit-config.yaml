@@ -35,13 +35,10 @@ repos:
         files: \.(sh|bash)$|scripts/.*\.tmpl$|dot_local/bin/executable_.*$
         args: [--severity=warning, --shell=bash]
 
-  # Lua formatting check for nvim config
+  # Lua formatting check for nvim config (system binary; CI installs a pinned release before pre-commit)
   - repo: https://github.com/JohnnyMorganz/StyLua
-    rev: v2.5.2
+    rev: v2.6.0
     hooks:
-      - id: stylua
-        # Only check files we own - exclude legacy theprimeagen/ reference files
-        # No --check: stylua auto-formats in place. If files change, git will detect the diff.
+      - id: stylua-system
         files: dot_config/nvim/.*\.lua$
-        exclude: dot_config/nvim/lua/theprimeagen/
         args: [--config-path, .pre-commit/stylua.toml]
