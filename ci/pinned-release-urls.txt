@@ -1,0 +1,10 @@
+# Checksum-pinned release artifacts (HTTP HEAD). Update when bumping versions in workflows or agent installers.
+https://github.com/neovim/neovim/releases/download/v0.12.6/nvim-linux-x86_64.tar.gz
+https://github.com/neovim/neovim/releases/download/v0.12.6/nvim-linux-arm64.tar.gz
+https://github.com/jdx/mise/releases/download/v2026.10.8/mise-v2026.10.8-linux-x64
+https://github.com/jdx/mise/releases/download/v2026.10.8/mise-v2026.10.8-linux-arm64
+https://github.com/starship/starship/releases/download/v1.26.0/starship-x86_64-unknown-linux-musl.tar.gz
+https://github.com/starship/starship/releases/download/v1.26.0/starship-aarch64-unknown-linux-musl.tar.gz
+https://github.com/gastownhall/beads/releases/download/v1.3.1/beads_1.3.1_linux_amd64.tar.gz
+https://github.com/can1357/oh-my-pi/releases/download/v18.10.2/omp-linux-x64
+https://github.com/earendil-works/pi/releases/download/v1.1.0/pi-linux-x64.tar.gz
