@@ -50,8 +50,11 @@ def merge_config(config_path: Path) -> None:
     config["worktree"] = True
     config["worktree_sync"] = True
 
-    skills = config.setdefault("skills", {})
-    if not isinstance(skills, dict):
+    skills = config.get("skills")
+    if skills is None:
+        skills = {}
+        config["skills"] = skills
+    elif not isinstance(skills, dict):
         raise TypeError("Hermes skills config must be a mapping")
 
     dirs = _external_dirs(skills.get("external_dirs"))
