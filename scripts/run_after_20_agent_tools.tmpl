@@ -14,9 +14,9 @@ if [ "${DEVCONTAINER:-0}" = "1" ] || [ -f /.dockerenv ]; then
   exit 0
 fi
 
-readonly beads_version="1.1.2"
-readonly omp_version="17.2.10"
-readonly pi_version="0.84.1"
+readonly beads_version="1.3.1"
+readonly omp_version="18.10.2"
+readonly pi_version="1.1.0"
 readonly hermes_version="0.20.0"
 readonly hermes_release="2026.8.3"
 readonly hermes_commit="3c27eb6234bf91b8ceee9e9071591b31e9b148cb"
@@ -108,24 +108,24 @@ esac
 
 case "$platform-$asset_arch" in
   darwin-arm64)
-    beads_sha256="9b0137a83a2afd343e2abd2a506be72ea032721000f76669c2cf81729e78501d"
-    omp_sha256="e37fa3d4d3eeb15b71d5b464fde51f913e390978a48dc33b4c527b8eed7237c6"
-    pi_sha256="683c84261f40b870b4a7ccf181a48ad6ecd71853b0112d1bb617539530c6121d"
+    beads_sha256="508ba807996e2b9c992c538a6f405f2fc7d2e16cf8b4e5b0d1bf9fe860367007"
+    omp_sha256="9752e3d7f7bdab636e21495a6affc196e8ffc3a2dffaf529db2dd73d2bdea255"
+    pi_sha256="3455b13de35c15a5893cdebc922678199e90a7ce99b06cbc23f37860e90d63c7"
     ;;
   darwin-x64)
-    beads_sha256="0e94de9319c9d66cb7e0038bb17ebaf5dd2fe669e366a4b9153528b474a1a8f6"
-    omp_sha256="20647fe19ab2e474516555db5c813f5d9aeffc556e456cdf9ee89007c8a98bef"
-    pi_sha256="f9060962b9cca5438d7fb97b60adae9c9302503d39b68d8aea8b891e2eb3e786"
+    beads_sha256="13bddb0b4774503d97d57e94204acc2b7c6b775fecc22fa38bc1b831718e234d"
+    omp_sha256="76b0d22a95f3b8a8f4023ed0940ba7f262f1032b61c15dd65c4f6c20776ad5cb"
+    pi_sha256="8fdd9149ae27e7470a6a10ed8a7c0ed80738d55adec80a8d7764f6386d1e658b"
     ;;
   linux-arm64)
-    beads_sha256="a134015faf4be0a43f8681a8d602eaf0b7c255c957f09d3c933257c8c92fdd10"
-    omp_sha256="c935d5d25eb677a625934f81f4b21b0ff05b64400feb9e90f02f0efe39676386"
-    pi_sha256="ab95c058a4651b5ff5d8c878e524edfb776263c7a444f325505f247c056eecfc"
+    beads_sha256="c3b32c71a6c0cd6358a12c28272b17e6818db991da192f87df52339c222e423a"
+    omp_sha256="a3ca5d7c4bf09c0d0cd1bc6bdeb77b59b3c33d4fb13240f05d272d46ec0c6a0e"
+    pi_sha256="f3b0cac459f9df5420e4e48b48e95d81bfab57b701dd3fe4b08fda7d11d27dab"
     ;;
   linux-x64)
-    beads_sha256="a72d71ed374955dc9f83a0f90b54bd7b6a0016709dd1676ae2e368651ed401c2"
-    omp_sha256="4fe564b23482cd627671a2417842498c97b2f72b5f8a3a4efb8094e623df7a33"
-    pi_sha256="5634d7ebd18274b63af3371e942f342d74bea012389575c1d1ff15ce6ca80c2f"
+    beads_sha256="3219443a9734b89b93fb16ee8d65844759fa1b3cd3cf139c606b7353cfb0715c"
+    omp_sha256="3d8f967bb4cf2a154592115edaf4bb723d7a6a6448eec933ac5eb49344938125"
+    pi_sha256="3faa94666cd3849d37af320ff749407d0271b07a9b94f420c87e30866e10e289"
     ;;
 esac
 

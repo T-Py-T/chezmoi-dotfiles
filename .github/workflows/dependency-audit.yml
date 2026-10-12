@@ -1,0 +1,40 @@
+# Lightweight dependency and pinned-artifact checks (complements Dependabot).
+# Does not replace validate.yml or pre-commit hooks.
+
+name: dependency audit
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 12 * * 1"
+
+jobs:
+  pip-audit:
+    name: pip audit (CI Python pins)
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: set up python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: run pip-audit
+        run: |
+          pip install pip-audit==2.9.0
+          pip-audit --requirement ci/requirements-audit.txt --strict
+
+  pinned-releases:
+    name: pinned release URLs
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: verify pinned download URLs
+        run: bash ci/verify-pinned-release-urls.sh

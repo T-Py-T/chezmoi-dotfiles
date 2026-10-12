@@ -6,7 +6,7 @@
 [tools]
 # Language runtimes - mise is the right tool for pinned runtime versions.
 # All other tools (starship, ripgrep, fzf, etc.) are installed via Homebrew Brewfiles.
-python = "3.14.3"
-go     = "1.25.7"
-rust   = "1.93.0"
-node   = "22.12.0"
+python = "3.14.8"
+go     = "1.26.9"
+rust   = "1.99.0"
+node   = "22.23.3"
