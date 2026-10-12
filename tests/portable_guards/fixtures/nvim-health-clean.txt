@@ -1,0 +1,4 @@
+Neovim health check
+vim.pack: OK
+Python: OK
+Node: OK
