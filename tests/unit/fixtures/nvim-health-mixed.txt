@@ -1,0 +1,5 @@
+Neovim health check
+Plugin: example OK installed
+LSP: pyright ERROR binary not found
+Treesitter: WARNING parser missing
+Another: OK configured
