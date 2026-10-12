@@ -7,6 +7,12 @@ if ! command -v tree-sitter >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; t
   npm install -g tree-sitter-cli 2>/dev/null || true
 fi
 
+# Shared aliases load before modular zsh configs so later files (e.g. eza-ls.zsh)
+# can override generic defaults like `ls --color=auto`.
+if [ -f ~/.config/shell_aliases ]; then
+  source ~/.config/shell_aliases
+fi
+
 # Source all modular zsh configs (00-homebrew.zsh puts Homebrew on PATH).
 for config in ~/.config/zsh/*.zsh(N); do
   source "$config"
@@ -26,8 +32,3 @@ fi
 # Override GOBIN after activation and put ~/go/bin on PATH for gopls et al.
 export GOBIN="$HOME/go/bin"
 export PATH="$HOME/go/bin:$PATH"
-
-# Load shared aliases if they exist
-if [ -f ~/.config/shell_aliases ]; then
-  source ~/.config/shell_aliases
-fi
