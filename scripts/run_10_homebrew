@@ -5,7 +5,13 @@
 
 set -euo pipefail
 
-source_dir="${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}"
+if [ -n "${CHEZMOI_SOURCE_DIR:-}" ]; then
+  source_dir="$CHEZMOI_SOURCE_DIR"
+elif command -v chezmoi >/dev/null 2>&1; then
+  source_dir="$(chezmoi source-path)"
+else
+  source_dir="$HOME/.local/share/chezmoi"
+fi
 
 # chezmoi runs each script in its own process, so the `brew shellenv` that
 # run_once_before_setup evaluated does not reach here. On a machine where that

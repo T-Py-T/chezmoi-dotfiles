@@ -56,8 +56,47 @@ jobs:
       - name: install test dependencies
         run: pip install 'PyYAML==6.0.3'
 
+      - name: install chezmoi (template rendering tests)
+        run: |
+          chmod +x scripts/ci-install-chezmoi.sh
+          sudo scripts/ci-install-chezmoi.sh
+
       - name: run unit tests
         run: python -m unittest discover -s scripts -p 'test_*.py' -v
+
+  validate-shell:
+    name: shell script checks
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: validate static shell scripts
+        run: |
+          chmod +x scripts/validate-shell-scripts.sh scripts/test_bootstrap_scripts.sh
+          scripts/validate-shell-scripts.sh
+          scripts/test_bootstrap_scripts.sh
+
+  validate-chezmoi-templates:
+    name: chezmoi template rendering
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: install chezmoi and shellcheck
+        run: |
+          sudo apt-get update && sudo apt-get install -y shellcheck
+          chmod +x scripts/ci-install-chezmoi.sh scripts/validate-chezmoi-templates.sh
+          sudo scripts/ci-install-chezmoi.sh
+
+      - name: validate rendered templates
+        run: scripts/validate-chezmoi-templates.sh
 
   validate-mise:
     name: validate mise.toml
