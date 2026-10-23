@@ -45,3 +45,8 @@ repos:
         files: dot_config/nvim/.*\.lua$
         exclude: dot_config/nvim/lua/theprimeagen/
         args: [--config-path, .pre-commit/stylua.toml]
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.24.2
+    hooks:
+      - id: gitleaks
