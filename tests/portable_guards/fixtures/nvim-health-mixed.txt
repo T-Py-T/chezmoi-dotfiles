@@ -1,0 +1,5 @@
+Neovim health check
+vim.pack: OK
+Python: ERROR Python provider failed
+Node: WARNING node missing
+LSP: ERROR clangd not found
